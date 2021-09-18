@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "socket.h"
+#include "common_socket.h"
 // VER LO QUE ESTABA ESCRITO EN LA CARPETA
 
 #define PENDING_CONNECTIONS 8

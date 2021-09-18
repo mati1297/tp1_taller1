@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "socket.h"
-#include "file_reader.h"
-#include "hanged.h"
-#include <errno.h>
+#include "common_socket.h"
+#include "server_file_reader.h"
+#include "common_hanged.h"
 
 
 int main(int argc, char * argv[]){
@@ -43,7 +42,6 @@ int main(int argc, char * argv[]){
         fileReaderReadLine(&file_reader, buffer, MAX_WORD_LENGTH + 1);
         if(buffer[0] == 0)
             continue;
-        printf("%s\n", buffer);
         if(socketAccept(&socket, &peer)) {
             fprintf(stderr, "Error al conectar con el cliente\n");
             return 1;
@@ -72,7 +70,6 @@ int main(int argc, char * argv[]){
                 if(hangedTryLetter(&hanged, buffer_letters[i])){
                     fprintf(stderr, "Letra invalida\n");
                 }
-                printf("%ld\n", hangedGetAttempts(&hanged));
             }
         }
         int pack_size;

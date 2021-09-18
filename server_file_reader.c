@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "file_reader.h"
+#include "server_file_reader.h"
 
 
 static int _fileReaderGetEndOfLinePosition(char * buffer){
@@ -50,7 +50,8 @@ int fileReaderReadLine(FileReader * self, char * output, int size){
             self->buffer[eol_position] = '\0';
             state_finished = true;
         }
-        strncpy(&output[readed], self->buffer, cant_to_read);
+        strncpy(&output[readed], self->buffer, cant_to_read + 1);
+        self->buffer[cant_to_read] = '\0';
         readed += n;
     }
     output[readed] = '\0';

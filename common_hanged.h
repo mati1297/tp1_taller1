@@ -1,5 +1,5 @@
-#ifndef TP1_TALLER1_HANGED_H
-#define TP1_TALLER1_HANGED_H
+#ifndef TP1_TALLER1_COMMON_HANGED_H
+#define TP1_TALLER1_COMMON_HANGED_H
 
 #define MAX_WORD_LENGTH 50
 #define UNKNOWN_CHARACTER '_'
@@ -13,7 +13,7 @@
 #define MASK_STATE 128
 
 
-#include "file_reader.h"
+#include "server_file_reader.h"
 
 typedef enum{
     STATE_IN_PROGRESS,
@@ -38,4 +38,4 @@ int hangedPackInformation(Hanged * self, char * buffer, size_t size);
 unsigned short hangedUnpackInformationHeader(char * package, HangedState * state, short unsigned * attempts);
 void hangedUnpackInformationWord(char * package, char * buffer, size_t size);
 
-#endif //TP1_TALLER1_HANGED_H
+#endif //TP1_TALLER1_COMMON_HANGED_H

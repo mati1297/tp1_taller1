@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <netinet/in.h>
-#include "hanged.h"
+#include "common_hanged.h"
 
 static bool _hangedCheckLetterAndReplaceIfNecessary(Hanged * self, char letter){
     bool is_there = false;
@@ -56,7 +56,7 @@ int hangedTryLetter(Hanged * self, char letter){
         self->state = STATE_PLAYER_WINS;
     else if (!self->attempts) {
         self->state = STATE_PLAYER_LOSES;
-        strncpy(self->known_word, self->word, sizeof(self->known_word));
+        strncpy(self->known_word, self->word, strlen(self->known_word));
     }
     return 0;
 }
@@ -96,8 +96,7 @@ int hangedPackInformation(Hanged * self, char * package, size_t size){
     unsigned short string_length = (unsigned short) strlen(self->word);
     string_length = htons(string_length);
     memcpy(&package[1], (const char *) &string_length, sizeof(unsigned short));
-    strncpy(&package[3], self->known_word, strlen(self->known_word));
-    printf("%s\n", &package[3]);
+    strncpy(&package[3], self->known_word, ntohs(string_length));
     return INFORMATION_PACK_HEADER_SIZE + strlen(self->known_word);
 }
 
@@ -121,4 +120,5 @@ unsigned short hangedUnpackInformationHeader(char * package, HangedState * state
 void hangedUnpackInformationWord(char * package, char * buffer, size_t size){
     memset(buffer, 0, size);
     strncpy(buffer, package, size);
+    buffer[size] = 0;
 }

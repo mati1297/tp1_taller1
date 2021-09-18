@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "socket.h"
-#include "file_reader.h"
-#include "hanged.h"
+#include "common_socket.h"
+#include "common_hanged.h"
 
 
 int main(int argc, char * argv[]){
@@ -37,7 +36,6 @@ int main(int argc, char * argv[]){
             return 1;
         }
         unsigned short size_word = hangedUnpackInformationHeader(package, &state, &attempts);
-        printf("%d\n", size_word);
 
         if(socketReceive(&socket, package, size_word) < 0){
             fprintf(stderr, "Error al recibir el paquete de información\n");
