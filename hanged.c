@@ -54,8 +54,10 @@ int hangedTryLetter(Hanged * self, char letter){
         self->attempts--;
     if (_hangedCheckPlayerWin(self))
         self->state = STATE_PLAYER_WINS;
-    else if (!self->attempts)
+    else if (!self->attempts) {
         self->state = STATE_PLAYER_LOSES;
+        strncpy(self->known_word, self->word, sizeof(self->known_word));
+    }
     return 0;
 }
 
@@ -83,9 +85,9 @@ size_t hangedGetAttempts(Hanged * self){
 
 //UN POCO HARCODEADA, DESHARCODEARLA. ESTA Y LA SIGUIENTE
 int hangedPackInformation(Hanged * self, char * package, size_t size){
-    int requiredSize = strlen(self->known_word) + INFORMATION_HEADER_SIZE;
+    int requiredSize = strlen(self->known_word) + INFORMATION_PACK_HEADER_SIZE;
     if(size < requiredSize + 1) // VER LO DEL + 1 DESPUES
-        return 1;
+        return -1;
     package[0] = (char) (self->attempts) & MASK_ATTEMPTS;
     if(self->state == STATE_IN_PROGRESS)
         package[0] &= MASK_STATE_IN_PROGRESS;
@@ -95,12 +97,12 @@ int hangedPackInformation(Hanged * self, char * package, size_t size){
     string_length = htons(string_length);
     memcpy(&package[1], (const char *) &string_length, sizeof(unsigned short));
     strncpy(&package[3], self->known_word, strlen(self->known_word));
-    return 0;
+    printf("%s\n", &package[3]);
+    return INFORMATION_PACK_HEADER_SIZE + strlen(self->known_word);
 }
 
-int hangedUnpackInformation(char * package, HangedState * state, short unsigned * attempts, char * buffer, size_t size){
+unsigned short hangedUnpackInformationHeader(char * package, HangedState * state, short unsigned * attempts){
     *attempts = (unsigned short) package[0] & MASK_ATTEMPTS;
-    printf("%d\n", *attempts);
     char _state = (char) (package[0] & MASK_STATE) >> 7;
     if(_state){
         if(*attempts > 0)
@@ -110,15 +112,13 @@ int hangedUnpackInformation(char * package, HangedState * state, short unsigned 
     } else {
         *state = STATE_IN_PROGRESS;
     }
-    printf("%d\n", *state);
-
     unsigned short string_length = 0;
     memcpy((char *) &string_length, &package[1], sizeof(unsigned short));
     string_length = ntohs(string_length);
-    if (size < string_length)
-        return 1;
+    return string_length;
+}
+
+void hangedUnpackInformationWord(char * package, char * buffer, size_t size){
     memset(buffer, 0, size);
-    strncpy(buffer, &package[3], string_length);
-    printf("%s\n", buffer);
-    return 0;
+    strncpy(buffer, package, size);
 }
