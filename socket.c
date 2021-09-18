@@ -9,7 +9,7 @@
 
 #define PENDING_CONNECTIONS 8
 
-static void _initializeSockAddrInStruct(Socket * self, int port){
+static void _socketInitializeSockAddrInStruct(Socket * self, int port){
     memset(&(self->addr), 0, sizeof(struct  sockaddr_in));
     (self->addr).sin_family = AF_INET;
     (self->addr).sin_port = htons(port);
@@ -18,7 +18,7 @@ static void _initializeSockAddrInStruct(Socket * self, int port){
 void socketInit(Socket * self){
     self->fd = socket(AF_INET, SOCK_STREAM, 0);
     int optval = 1;
-    setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval sizeof(int));
+    setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
 }
 
 void socketInitFromFd(Socket * self, int fd){
@@ -33,7 +33,7 @@ void socketUnInit(Socket * self){
 }
 
 int socketConnect(Socket * self, char * host, int port){
-    _initializeSockAddrInStruct(self, port);
+    _socketInitializeSockAddrInStruct(self, port);
     if (inet_pton(AF_INET, host, &(self->addr).sin_addr))
         return 1;
     if (connect(self->fd,
@@ -43,14 +43,12 @@ int socketConnect(Socket * self, char * host, int port){
 }
 
 int socketBindAndListen(Socket * self, int port){
-    _initializeSockAddrInStruct(self, port);
+    _socketInitializeSockAddrInStruct(self, port);
     if (bind(self->fd,
              (struct sockaddr *) &(self->addr), sizeof(struct sockaddr))) {
-        perror("");
         return 1;
     }
     if (listen(self->fd, PENDING_CONNECTIONS)) {
-        perror("");
         return 1;
     }
     return 0;
@@ -68,10 +66,10 @@ int socketAccept(Socket * self, Socket * peer){
 
 
 //REVISAR FUNCIONES CON LO DEL DIPA
-int socketSend(Socket * self, char * buffer, size_t size){
+int socketSend(Socket * socket, char * buffer, size_t size){
     size_t total_bytes_sent = 0;
     while ((size - total_bytes_sent) > 0){
-        int bytes_sent = send(self->fd, &buffer[total_bytes_sent],
+        int bytes_sent = send(socket->fd, &buffer[total_bytes_sent],
                               size - total_bytes_sent, 0);
         if (bytes_sent < 0)
             return -1;
@@ -80,11 +78,12 @@ int socketSend(Socket * self, char * buffer, size_t size){
     return total_bytes_sent;
 }
 
-int socketReceive(Socket * peer, char * buffer, size_t size){
+int socketReceive(Socket * socket, char * buffer, size_t size){
     size_t total_bytes_received = 0;
     while ((size - total_bytes_received) > 0){
+
         int bytes_received =
-                recv(peer->fd, buffer[total_bytes_received],
+                recv(socket->fd, &buffer[total_bytes_received],
                      size - total_bytes_received, 0);
         if (bytes_received < 0)
             return -1;

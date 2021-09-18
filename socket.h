@@ -23,6 +23,6 @@ int socketConnect(Socket * self, char * host, int port);
 int socketBindAndListen(Socket * self, int port);
 int socketAccept(Socket * self, Socket * peer);
 int socketSend(Socket * self, char * buffer, size_t size);
-int socketReceive(Socket * peer, char * buffer, size_t size);
+int socketReceive(Socket * socket, char * buffer, size_t size);
 
 #endif //TP1_TALLER1_SOCKET_H
