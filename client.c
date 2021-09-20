@@ -67,12 +67,13 @@ int main(int argc, char * argv[]){
             fprintf(stderr, "Error al enviar los datos de letra\n");
             return 1;
         }
+        printf("\n");
     }
 
     if(state == STATE_PLAYER_WINS)
         printf("Ganaste!!\n");
     else
-        printf("Perdiste! La palabra secreta era: %s\n", buffer_word);
+        printf("Perdiste! La palabra secreta era: '%s'\n", buffer_word);
 
     socketUnInit(&socket);
 
