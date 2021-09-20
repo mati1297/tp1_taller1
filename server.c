@@ -44,6 +44,8 @@ int main(int argc, char * argv[]){
     char buffer[MAX_WORD_LENGTH + 1];
     char buffer_letters[MAX_LETTERS_PER_SENT];
     char package[MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE];
+
+    hangedInit(&hanged, attempts);
     while(!fileReaderEOF(&file_reader)){
         fileReaderReadLine(&file_reader, buffer, MAX_WORD_LENGTH + 1);
         if(buffer[0] == 0)
@@ -52,7 +54,7 @@ int main(int argc, char * argv[]){
             fprintf(stderr, "Error al conectar con el cliente\n");
             return 1;
         }
-        if(hangedInit(&hanged, buffer, attempts)){
+        if(hangedAddWord(&hanged, buffer)){
             fprintf(stderr, "Error al cargar palabra al juego\n");
             return 1;
         }
@@ -89,6 +91,10 @@ int main(int argc, char * argv[]){
             return 1;
         }
     }
+
+    printf("Resumen:\n");
+    printf("\tVictorias: %d\n", hangedGetVictories(&hanged));
+    printf("\tDerrotas: %d\n", hangedGetLoses(&hanged));
 
 
     socketUnInit(&socket);

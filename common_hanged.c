@@ -29,18 +29,24 @@ static bool _hangedCheckPlayerWin(Hanged * self){
     return true;
 }
 
-int hangedInit(Hanged * self, char * word, size_t attempts){
+void hangedInit(Hanged * self, size_t attempts){
+    self->attempts = (attempts < MAX_ATTEMPTS) ? attempts : MAX_ATTEMPTS;
+    self->state = STATE_INACTIVE;
+}
+
+int hangedAddWord(Hanged * self, char * word) {
     if (strlen(word) > MAX_WORD_LENGTH)
         return 1;
-    for (int i = 0; i < strlen(word); i++){
-        if(word[i] < 'a' || word[i] > 'z')
+    for (int i = 0; i < strlen(word); i++) {
+        if (word[i] < 'a' || word[i] > 'z')
             return 1;
     }
     memset(self->word, 0, MAX_WORD_LENGTH);
     memset(self->known_word, 0, MAX_WORD_LENGTH);
     strncpy(self->word, word, MAX_WORD_LENGTH);
     memset(self->known_word, UNKNOWN_CHARACTER, strlen(self->word));
-    self->attempts = (attempts < MAX_ATTEMPTS) ? attempts : MAX_ATTEMPTS;
+
+    self->attempts_count = self->attempts;
     self->state = STATE_IN_PROGRESS;
     return 0;
 }
@@ -51,12 +57,15 @@ int hangedTryLetter(Hanged * self, char letter){
     if (self->state != STATE_IN_PROGRESS)
         return 1;
     if (!_hangedCheckLetterAndReplaceIfNecessary(self, letter))
-        self->attempts--;
-    if (_hangedCheckPlayerWin(self))
+        self->attempts_count--;
+    if (_hangedCheckPlayerWin(self)) {
         self->state = STATE_PLAYER_WINS;
-    else if (!self->attempts) {
+        self->victories++;
+    }
+    else if (!self->attempts_count) {
         self->state = STATE_PLAYER_LOSES;
         strncpy(self->known_word, self->word, strlen(self->known_word));
+        self->loses++;
     }
     return 0;
 }
@@ -80,7 +89,15 @@ HangedState hangedGetState(Hanged * self){
 }
 
 size_t hangedGetAttempts(Hanged * self){
-    return self->attempts;
+    return self->attempts_count;
+}
+
+unsigned hangedGetVictories(Hanged * self){
+    return self->victories;
+}
+
+unsigned hangedGetLoses(Hanged * self){
+    return self->loses;
 }
 
 //UN POCO HARCODEADA, DESHARCODEARLA. ESTA Y LA SIGUIENTE
@@ -88,7 +105,7 @@ int hangedPackInformation(Hanged * self, char * package, size_t size){
     int requiredSize = strlen(self->known_word) + INFORMATION_PACK_HEADER_SIZE;
     if(size < requiredSize + 1) // VER LO DEL + 1 DESPUES
         return -1;
-    package[0] = (char) (self->attempts) & MASK_ATTEMPTS;
+    package[0] = (char) (self->attempts_count) & MASK_ATTEMPTS;
     if(self->state == STATE_IN_PROGRESS)
         package[0] &= MASK_STATE_IN_PROGRESS;
     else
