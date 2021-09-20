@@ -31,43 +31,68 @@ int main(int argc, char * argv[]){
 
 
     char buffer_word[MAX_WORD_LENGTH];
-    char buffer_letters[MAX_LETTERS_PER_SENT];
     HangedState state = STATE_IN_PROGRESS;
     unsigned short attempts;
 
-    while(1){
-        memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
-        if(socketReceive(&socket, package, INFORMATION_PACK_HEADER_SIZE) < 0){
-            fprintf(stderr, "Error al recibir el paquete de información\n");
-            return 1;
-        }
-        unsigned short size_word = hangedUnpackInformationHeader(package, &state, &attempts);
+    //Leo la primera vez lo que me mandan
+    memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
+    if(socketReceive(&socket, package, INFORMATION_PACK_HEADER_SIZE) < 0){
+        fprintf(stderr, "Error al recibir el paquete de información\n");
+        return 1;
+    }
+    unsigned short size_word = hangedUnpackInformationHeader(package, &state, &attempts);
 
-        if(socketReceive(&socket, package, size_word) < 0){
-            fprintf(stderr, "Error al recibir el paquete de información\n");
-            return 1;
+    if(socketReceive(&socket, package, size_word) < 0){
+        fprintf(stderr, "Error al recibir el paquete de información\n");
+        return 1;
+    }
+    hangedUnpackInformationWord(package, buffer_word, size_word);
+
+
+    printf("Palabra secreta: %s\n", buffer_word);
+    printf("Te quedan %d intentos\n", attempts);
+    printf("Ingrese letra: ");
+
+    while(1){
+        char c;
+        int i = 0;
+
+        for (i = 0; (c = getchar()) != '\n' && i < MAX_LETTERS_PER_LINE; i++){
+            printf("\n");
+            //Envio la letra
+            if(socketSend(&socket, &c, 1) < 1) {
+                fprintf(stderr, "Error al enviar los datos de letra\n");
+                return 1;
+            }
+
+            memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
+            if(socketReceive(&socket, package, INFORMATION_PACK_HEADER_SIZE) < 0){
+                fprintf(stderr, "Error al recibir el paquete de información\n");
+                return 1;
+            }
+            unsigned short size_word = hangedUnpackInformationHeader(package, &state, &attempts);
+
+            if(socketReceive(&socket, package, size_word) < 0){
+                fprintf(stderr, "Error al recibir el paquete de información\n");
+                return 1;
+            }
+            hangedUnpackInformationWord(package, buffer_word, size_word);
+
+            if(state != STATE_IN_PROGRESS)
+                break;
+
+            printf("Palabra secreta: %s\n", buffer_word);
+            printf("Te quedan %d intentos\n", attempts);
+            printf("Ingrese letra: ");
+
+
         }
-        hangedUnpackInformationWord(package, buffer_word, size_word);
+        if(c != '\n')
+            while ((c = getchar()) != '\n' && c != EOF) {}
 
         if(state != STATE_IN_PROGRESS)
             break;
 
-        printf("Palabra secreta: %s\n", buffer_word);
-        printf("Te quedan %d intentos\n", attempts);
-        printf("Ingrese letra: ");
-        char c;
-        int i = 0;
-        memset(buffer_letters, 0, MAX_LETTERS_PER_SENT);
-        for (i = 0; (c = getchar()) != '\n' && i < MAX_LETTERS_PER_SENT; i++){
-            buffer_letters[i] = c;
-        }
-        if(c != '\n')
-            while ((c = getchar()) != '\n' && c != EOF) {}
-        if(socketSend(&socket, buffer_letters, MAX_LETTERS_PER_SENT) < 1){
-            fprintf(stderr, "Error al enviar los datos de letra\n");
-            return 1;
-        }
-        printf("\n");
     }
 
     if(state == STATE_PLAYER_WINS)

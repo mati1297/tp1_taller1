@@ -42,8 +42,8 @@ int main(int argc, char * argv[]){
 
 
     char buffer[MAX_WORD_LENGTH + 1];
-    char buffer_letters[MAX_LETTERS_PER_SENT];
     char package[MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE];
+    char new_letter;
 
     hangedInit(&hanged, attempts);
     while(!fileReaderEOF(&file_reader)){
@@ -70,15 +70,17 @@ int main(int argc, char * argv[]){
                 fprintf(stderr, "Error al enviar paquete\n");
                 return 1;
             }
-            if (socketReceive(&peer, buffer_letters, MAX_LETTERS_PER_SENT) < 0) {
+            if (socketReceive(&peer, &new_letter, 1) < 0) {
                 fprintf(stderr, "Error al recibir letras\n");
                 return 1;
             }
-            for (int i = 0; i < MAX_LETTERS_PER_SENT && buffer_letters[i]; i++) {
+            /*for (int i = 0; i < MAX_LETTERS_PER_SENT && buffer_letters[i]; i++) {
                 if(hangedTryLetter(&hanged, buffer_letters[i])){
                     fprintf(stderr, "Letra invalida\n");
                 }
-            }
+            }*/
+            if(hangedTryLetter(&hanged, new_letter))
+                fprintf(stderr, "Letra invalida\n");
         }
         int pack_size;
         memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
