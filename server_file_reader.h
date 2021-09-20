@@ -20,7 +20,7 @@ int fileReaderInit(FileReader * self, FILE * fds);
 void fileReaderUnInit(FileReader * self);
 int fileReaderInitFromName(FileReader * self, char * name);
 bool fileReaderEOF(FileReader * self);
-int fileReaderReadLine(FileReader * self, char * output, int size);
+int fileReaderReadLine(FileReader * self, char * output, size_t size);
 
 
 #endif
