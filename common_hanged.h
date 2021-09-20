@@ -13,7 +13,7 @@
 #define MASK_STATE 128
 
 
-#include "server_file_reader.h"
+#include "common_file_reader.h"
 
 typedef enum{
     STATE_IN_PROGRESS,

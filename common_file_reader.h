@@ -8,12 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define BUFFER_SIZE 20
-
-
 typedef struct {
     FILE * fds;
-    char buffer[BUFFER_SIZE];
 } FileReader;
 
 int fileReaderInit(FileReader * self, FILE * fds);

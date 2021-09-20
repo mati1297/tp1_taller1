@@ -2,17 +2,17 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "server_file_reader.h"
+#include "common_file_reader.h"
 
 int fileReaderInit(FileReader * self, FILE * fds){
-    if (!fds || fds == stdin)
+    if (!fds)
         return 1;
     self->fds = fds;
     return 0;
 }
 
 void fileReaderUnInit(FileReader * self){
-    if (self->fds)
+    if (self->fds && self->fds != stdin)
         fclose(self->fds);
 }
 
@@ -32,8 +32,7 @@ int fileReaderReadLine(FileReader * self, char * output, size_t size){
     char * buffer = (char *) malloc(_size);
     read = getline(&buffer, &_size, self->fds);
     buffer[--read] = 0;
-    printf("%s\n", buffer);
-    if(size < _size || _size < 1){
+    if(size < _size || _size == -1){
         free(buffer);
         buffer = NULL;
         return -1;
@@ -41,5 +40,5 @@ int fileReaderReadLine(FileReader * self, char * output, size_t size){
     strncpy(output, buffer, size);
     free(buffer);
     buffer = NULL;
-    return read;
+    return (int) read;
 }

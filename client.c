@@ -8,6 +8,9 @@
 
 int main(int argc, char * argv[]){
     Socket socket;
+    FileReader file_reader;
+
+    fileReaderInit(&file_reader, stdin);
 
     if(argc < (ARGUMENTS_SIZE + 1)){
         fprintf(stderr, "La cantidad de argumentos debe ser %d\n", ARGUMENTS_SIZE);
@@ -31,6 +34,8 @@ int main(int argc, char * argv[]){
 
 
     char buffer_word[MAX_WORD_LENGTH];
+    char buffer_letters[MAX_LETTERS_PER_LINE + 1];
+    size_t read;
     HangedState state = STATE_IN_PROGRESS;
     unsigned short attempts;
 
@@ -54,13 +59,17 @@ int main(int argc, char * argv[]){
     printf("Ingrese letra: ");
 
     while(1){
-        char c;
         int i = 0;
 
-        for (i = 0; (c = getchar()) != '\n' && i < MAX_LETTERS_PER_LINE; i++){
+        if((read = fileReaderReadLine(&file_reader, buffer_letters, MAX_LETTERS_PER_LINE)) == -1){
+            fprintf(stderr, "Error al leer las letras de entrada");
+            return 1;
+        }
+
+        for (i = 0; i < read; i++){
             printf("\n");
             //Envio la letra
-            if(socketSend(&socket, &c, 1) < 1) {
+            if(socketSend(&socket, &buffer_letters[i], 1) < 1) {
                 fprintf(stderr, "Error al enviar los datos de letra\n");
                 return 1;
             }
@@ -87,8 +96,6 @@ int main(int argc, char * argv[]){
 
 
         }
-        if(c != '\n')
-            while ((c = getchar()) != '\n' && c != EOF) {}
 
         if(state != STATE_IN_PROGRESS)
             break;
@@ -101,6 +108,8 @@ int main(int argc, char * argv[]){
         printf("Perdiste! La palabra secreta era: '%s'\n", buffer_word);
 
     socketUnInit(&socket);
+
+    fileReaderUnInit(&file_reader);
 
     return 0;
 

@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "common_socket.h"
-#include "server_file_reader.h"
+#include "common_file_reader.h"
 #include "common_hanged.h"
 
 #define ARGUMENTS_SIZE 3
