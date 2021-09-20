@@ -4,9 +4,15 @@
 #include "common_socket.h"
 #include "common_hanged.h"
 
+#define ARGUMENTS_SIZE 2
 
 int main(int argc, char * argv[]){
     Socket socket;
+
+    if(argc < (ARGUMENTS_SIZE + 1)){
+        fprintf(stderr, "La cantidad de argumentos debe ser %d\n", ARGUMENTS_SIZE);
+        return 1;
+    }
 
     int port = strtol(argv[2], NULL, 10);
     if (port <= 0) {

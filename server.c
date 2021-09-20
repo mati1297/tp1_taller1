@@ -5,11 +5,17 @@
 #include "server_file_reader.h"
 #include "common_hanged.h"
 
+#define ARGUMENTS_SIZE 3
 
 int main(int argc, char * argv[]){
     FileReader file_reader;
     Socket socket, peer;
     Hanged hanged;
+
+    if(argc < (ARGUMENTS_SIZE + 1)){
+        fprintf(stderr, "La cantidad de argumentos debe ser %d\n", ARGUMENTS_SIZE);
+        return 1;
+    }
 
     int port = strtol(argv[1], NULL, 10);
     if (port <= 0) {
