@@ -8,6 +8,7 @@
 // VER LO QUE ESTABA ESCRITO EN LA CARPETA
 
 #define PENDING_CONNECTIONS 8
+#define LOCALHOST "localhost"
 
 static void _socketInitializeSockAddrInStruct(Socket * self, int port){
     memset(&(self->addr), 0, sizeof(struct  sockaddr_in));
@@ -34,8 +35,11 @@ void socketUnInit(Socket * self){
 
 int socketConnect(Socket * self, char * host, int port){
     _socketInitializeSockAddrInStruct(self, port);
-    if (inet_pton(AF_INET, host, &(self->addr).sin_addr))
-        return 1;
+    if (strcmp(host, LOCALHOST)){
+        if (!inet_pton(AF_INET, host, &(self->addr).sin_addr)) {
+            return 1;
+        }
+    }
     if (connect(self->fd,
                 (struct sockaddr *) &(self->addr), sizeof(struct sockaddr)))
         return 1;
