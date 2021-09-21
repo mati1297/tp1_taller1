@@ -51,14 +51,15 @@ int main(int argc, char * argv[]){
         fileReaderReadLine(&file_reader, buffer, MAX_WORD_LENGTH + 1);
         if(buffer[0] == 0)
             continue;
+        if(hangedAddWord(&hanged, buffer)){
+            fprintf(stderr, "%s\n", MSG_ERROR_LOADING_WORD);
+			continue;
+        }    
         if(socketAccept(&socket, &peer)) {
             fprintf(stderr, "%s\n", MSG_ERROR_CONNECTING_CLIENT);
             return 1;
         }
-        if(hangedAddWord(&hanged, buffer)){
-            fprintf(stderr, "%s\n", MSG_ERROR_LOADING_WORD);
-            return 1;
-        }
+        
 
         while(hangedGetState(&hanged) == STATE_IN_PROGRESS) {
             int pack_size;
