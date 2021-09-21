@@ -1,5 +1,6 @@
 TDAear cliente y server, ver como
 ver de mejorar la manera en que se envian los paquetes (en ves de char uint_8, ver si conviene) 
+ver si poner la funcion de empaquetar en hanged o en el server.
 Poner el texto en defines
 revisar tipos (en especial size_t, int etc)
 ver bien donde deberian ir los defines de la entrada(MAX_PER LINE, etc) (creo que en cliente)
