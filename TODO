@@ -1,0 +1,6 @@
+TDAear cliente y server, ver como
+ver de mejorar la manera en que se envian los paquetes (en ves de char uint_8, ver si conviene) 
+Poner el texto en defines
+revisar tipos (en especial size_t, int etc)
+ver bien donde deberian ir los defines de la entrada(MAX_PER LINE, etc) (creo que en cliente)
+ver de reemplazar en errores en ves de <0 == -1 directamente. (revisar si poner defines??)
