@@ -5,7 +5,7 @@
 #define UNKNOWN_CHARACTER '_'
 #define MAX_ATTEMPTS 127
 #define INFORMATION_PACK_HEADER_SIZE 3
-#define MAX_LETTERS_PER_LINE 15
+
 
 #define MASK_ATTEMPTS 127
 #define MASK_STATE_IN_PROGRESS 127
@@ -27,7 +27,7 @@ typedef struct{
     char known_word[MAX_WORD_LENGTH + 1];
     unsigned short attempts_count, attempts;
     HangedState state;
-    unsigned victories, loses;
+    size_t victories, loses;
 } Hanged;
 
 void hangedInit(Hanged * self, size_t attempts);
@@ -36,9 +36,9 @@ int hangedTryLetter(Hanged * self, char letter);
 int hangedGetCorrectWord(Hanged * self, char * buffer, size_t size);
 int hangedGetKnownWord(Hanged * self, char * buffer, size_t size);
 HangedState hangedGetState(Hanged * self);
-size_t hangedGetAttempts(Hanged * self);
-unsigned hangedGetVictories(Hanged * self);
-unsigned hangedGetLoses(Hanged * self);
+unsigned short hangedGetAttempts(Hanged * self);
+size_t hangedGetVictories(Hanged * self);
+size_t hangedGetLoses(Hanged * self);
 int hangedPackInformation(Hanged * self, char * buffer, size_t size);
 unsigned short hangedUnpackInformationHeader(char * package, HangedState * state, short unsigned * attempts);
 void hangedUnpackInformationWord(char * package, char * buffer, size_t size);

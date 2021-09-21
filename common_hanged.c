@@ -32,6 +32,8 @@ static bool _hangedCheckPlayerWin(Hanged * self){
 void hangedInit(Hanged * self, size_t attempts){
     self->attempts = (attempts < MAX_ATTEMPTS) ? attempts : MAX_ATTEMPTS;
     self->state = STATE_INACTIVE;
+    self->victories = 0;
+    self->loses = 0;
 }
 
 int hangedAddWord(Hanged * self, char * word) {
@@ -88,15 +90,15 @@ HangedState hangedGetState(Hanged * self){
     return self->state;
 }
 
-size_t hangedGetAttempts(Hanged * self){
+unsigned short hangedGetAttempts(Hanged * self){
     return self->attempts_count;
 }
 
-unsigned hangedGetVictories(Hanged * self){
+size_t hangedGetVictories(Hanged * self){
     return self->victories;
 }
 
-unsigned hangedGetLoses(Hanged * self){
+size_t hangedGetLoses(Hanged * self){
     return self->loses;
 }
 
