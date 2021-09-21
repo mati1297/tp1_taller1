@@ -4,6 +4,7 @@
 #include "common_socket.h"
 #include "common_file_reader.h"
 #include "common_hanged.h"
+#include "common_spanish.h"
 
 #define ARGUMENTS_SIZE 3
 
@@ -13,30 +14,30 @@ int main(int argc, char * argv[]){
     Hanged hanged;
 
     if(argc < (ARGUMENTS_SIZE + 1)){
-        fprintf(stderr, "La cantidad de argumentos debe ser %d\n", ARGUMENTS_SIZE);
+        fprintf(stderr, "%s %d\n", MSG_ERROR_ARGS_AMOUNT, ARGUMENTS_SIZE);
         return 1;
     }
 
     int port = strtol(argv[1], NULL, 10);
     if (port <= 0) {
-        fprintf(stderr, "Numero de puerto invalido\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_INVALID_LETTER);
         return 1;
     }
 
     int attempts = strtol(argv[2], NULL, 10);
     if (attempts <= 0 || attempts > MAX_ATTEMPTS) {
-        fprintf(stderr, "Numero de intentos invalido\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_INVALID_ATTEMPTS_AMOUNT);
         return 1;
     }
 
     if(fileReaderInitFromName(&file_reader, argv[3])){
-        fprintf(stderr, "Error al abrir el archivo\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_OPEN_FILE);
         return 1;
     }
 
     socketInit(&socket);
     if(socketBindAndListen(&socket, port)) {
-        fprintf(stderr, "Error al poner el puerto en escucha\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_LISTENING_PORT);
         return 1;
     }
 
@@ -51,11 +52,11 @@ int main(int argc, char * argv[]){
         if(buffer[0] == 0)
             continue;
         if(socketAccept(&socket, &peer)) {
-            fprintf(stderr, "Error al conectar con el cliente\n");
+            fprintf(stderr, "%s\n", MSG_ERROR_CONNECTING_CLIENT);
             return 1;
         }
         if(hangedAddWord(&hanged, buffer)){
-            fprintf(stderr, "Error al cargar palabra al juego\n");
+            fprintf(stderr, "%s\n", MSG_ERROR_LOADING_WORD);
             return 1;
         }
 
@@ -63,40 +64,35 @@ int main(int argc, char * argv[]){
             int pack_size;
             memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
             if ((pack_size = hangedPackInformation(&hanged, package, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) < 0) {
-                fprintf(stderr, "Error al empaquetar informacion\n");
+                fprintf(stderr, "%s\n", MSG_ERROR_PACKING_INFO);
                 return 1;
             }
             if (socketSend(&peer, package, pack_size) < 0) {
-                fprintf(stderr, "Error al enviar paquete\n");
+                fprintf(stderr, "%s\n", MSG_ERROR_SENDING_PACKAGE);
                 return 1;
             }
             if (socketReceive(&peer, &new_letter, 1) < 0) {
-                fprintf(stderr, "Error al recibir letras\n");
+                fprintf(stderr, "%s\n", MSG_ERROR_LETTERS_RECEIVE);
                 return 1;
             }
-            /*for (int i = 0; i < MAX_LETTERS_PER_SENT && buffer_letters[i]; i++) {
-                if(hangedTryLetter(&hanged, buffer_letters[i])){
-                    fprintf(stderr, "Letra invalida\n");
-                }
-            }*/
             if(hangedTryLetter(&hanged, new_letter))
-                fprintf(stderr, "Letra invalida\n");
+                fprintf(stderr, "%s\n", MSG_ERROR_INVALID_LETTER);
         }
         int pack_size;
         memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
         if ((pack_size = hangedPackInformation(&hanged, package, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) < 0) {
-            fprintf(stderr, "Error al empaquetar informacion\n");
+            fprintf(stderr, "%s\n", MSG_ERROR_PACKING_INFO);
             return 1;
         }
         if (socketSend(&peer, package, pack_size) < 0) {
-            fprintf(stderr, "Error al enviar paquete\n");
+            fprintf(stderr, "%s\n", MSG_ERROR_SENDING_PACKAGE);
             return 1;
         }
     }
 
-    printf("Resumen:\n");
-    printf("\tVictorias: %d\n", hangedGetVictories(&hanged));
-    printf("\tDerrotas: %d\n", hangedGetLoses(&hanged));
+    printf("%s:\n", MSG_HANGED_SUMMARY);
+    printf("\t%s: %ld\n", MSG_HANGED_VICTORIES, hangedGetVictories(&hanged));
+    printf("\t%s: %ld\n", MSG_HANGED_DEFEATS, hangedGetLoses(&hanged));
 
 
     socketUnInit(&socket);

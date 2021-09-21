@@ -3,8 +3,11 @@
 #include <stdbool.h>
 #include "common_socket.h"
 #include "common_hanged.h"
+#include "common_spanish.h"
 
-#define ARGUMENTS_SIZE 2
+#define ARGUMENTS_AMOUNT 2
+#define MAX_LETTERS_PER_LINE 50
+
 
 int main(int argc, char * argv[]){
     Socket socket;
@@ -12,20 +15,20 @@ int main(int argc, char * argv[]){
 
     fileReaderInit(&file_reader, stdin);
 
-    if(argc < (ARGUMENTS_SIZE + 1)){
-        fprintf(stderr, "La cantidad de argumentos debe ser %d\n", ARGUMENTS_SIZE);
+    if(argc < (ARGUMENTS_AMOUNT + 1)){
+        fprintf(stderr, "%s %d\n", MSG_ERROR_ARGS_AMOUNT, ARGUMENTS_AMOUNT);
         return 1;
     }
 
     int port = strtol(argv[2], NULL, 10);
     if (port <= 0) {
-        fprintf(stderr, "Numero de puerto invalido\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_PORT_NUMBER);
         return 1;
     }
 
     socketInit(&socket);
     if(socketConnect(&socket, argv[1], port)) {
-        fprintf(stderr, "Error al conectar al server\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_SERVER_CONNECTION);
         return 1;
     }
 
@@ -42,47 +45,53 @@ int main(int argc, char * argv[]){
     //Leo la primera vez lo que me mandan
     memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
     if(socketReceive(&socket, package, INFORMATION_PACK_HEADER_SIZE) < 0){
-        fprintf(stderr, "Error al recibir el paquete de información\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_PACKAGE_RECEIVE);
         return 1;
     }
     unsigned short size_word = hangedUnpackInformationHeader(package, &state, &attempts);
 
     if(socketReceive(&socket, package, size_word) < 0){
-        fprintf(stderr, "Error al recibir el paquete de información\n");
+        fprintf(stderr, "%s\n", MSG_ERROR_PACKAGE_RECEIVE);
         return 1;
     }
     hangedUnpackInformationWord(package, buffer_word, size_word);
 
 
-    printf("Palabra secreta: %s\n", buffer_word);
-    printf("Te quedan %d intentos\n", attempts);
-    printf("Ingrese letra: ");
+    printf("%s: %s\n", MSG_HANGED_SECRET_WORD, buffer_word);
+    printf("%s %d %s\n", MSG_HANGED_ATTEMPTS_PARTONE, attempts, MSG_HANGED_ATTEMPTS_PARTTWO);
+    printf("%s: ", MSG_HANGED_NEW_LETTER);
 
     while(1){
         int i = 0;
 
         if((read = fileReaderReadLine(&file_reader, buffer_letters, MAX_LETTERS_PER_LINE)) == -1){
-            fprintf(stderr, "Error al leer las letras de entrada");
+            fprintf(stderr, "%s\n", MSG_ERROR_READING_LETTERS);
             return 1;
         }
+
+
 
         for (i = 0; i < read; i++){
             printf("\n");
             //Envio la letra
-            if(socketSend(&socket, &buffer_letters[i], 1) < 1) {
-                fprintf(stderr, "Error al enviar los datos de letra\n");
-                return 1;
-            }
+            if(buffer_letters[i] < 'a' || buffer_letters[i] > 'z')
+				fprintf(stderr, "%s\n", MSG_ERROR_INVALID_LETTER);
+
+			if(socketSend(&socket, &buffer_letters[i], 1) < 1) {
+				fprintf(stderr, "%s\n", MSG_ERROR_SENDING_LETTERS);
+				return 1;
+			}
+
 
             memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
             if(socketReceive(&socket, package, INFORMATION_PACK_HEADER_SIZE) < 0){
-                fprintf(stderr, "Error al recibir el paquete de información\n");
+				fprintf(stderr, "%s\n", MSG_ERROR_PACKAGE_RECEIVE);
                 return 1;
             }
             unsigned short size_word = hangedUnpackInformationHeader(package, &state, &attempts);
 
             if(socketReceive(&socket, package, size_word) < 0){
-                fprintf(stderr, "Error al recibir el paquete de información\n");
+                fprintf(stderr, "%s\n", MSG_ERROR_PACKAGE_RECEIVE);
                 return 1;
             }
             hangedUnpackInformationWord(package, buffer_word, size_word);
@@ -90,9 +99,9 @@ int main(int argc, char * argv[]){
             if(state != STATE_IN_PROGRESS)
                 break;
 
-            printf("Palabra secreta: %s\n", buffer_word);
-            printf("Te quedan %d intentos\n", attempts);
-            printf("Ingrese letra: ");
+			printf("%s: %s\n", MSG_HANGED_SECRET_WORD, buffer_word);
+			printf("%s %d %s\n", MSG_HANGED_ATTEMPTS_PARTONE, attempts, MSG_HANGED_ATTEMPTS_PARTTWO);
+			printf("%s: ", MSG_HANGED_NEW_LETTER);
 
 
         }
@@ -103,9 +112,10 @@ int main(int argc, char * argv[]){
     }
 
     if(state == STATE_PLAYER_WINS)
-        printf("Ganaste!!\n");
+        printf("%s!!\n", MSG_HANGED_YOU_WIN);
     else
-        printf("Perdiste! La palabra secreta era: '%s'\n", buffer_word);
+        printf("%s: '%s'\n", MSG_HANGED_YOU_LOSE, buffer_word);
+        
 
     socketUnInit(&socket);
 
