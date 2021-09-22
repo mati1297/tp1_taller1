@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <netinet/in.h>
+#include <stdint.h>
+#include <netinet/in.h> //borrar luego
 #include "common_hanged.h"
 
 static bool _hangedCheckLetterAndReplaceIfNecessary(Hanged * self, char letter){
@@ -36,7 +37,7 @@ void hangedInit(Hanged * self, size_t attempts){
     self->loses = 0;
 }
 
-int hangedAddWord(Hanged * self, char * word) {
+uint8_t hangedAddWord(Hanged * self, char * word) {
     if (strlen(word) > MAX_WORD_LENGTH)
         return 1;
     for (int i = 0; i < strlen(word); i++) {
@@ -53,7 +54,7 @@ int hangedAddWord(Hanged * self, char * word) {
     return 0;
 }
 
-int hangedTryLetter(Hanged * self, char letter){
+uint8_t hangedTryLetter(Hanged * self, char letter){
     if (letter < 'a' || letter > 'z')
         return 1;
     if (self->state != STATE_IN_PROGRESS)
@@ -72,14 +73,14 @@ int hangedTryLetter(Hanged * self, char letter){
     return 0;
 }
 
-int hangedGetCorrectWord(Hanged * self, char * buffer, size_t size){
+uint8_t hangedGetCorrectWord(Hanged * self, char * buffer, size_t size){
     if(size < (strlen(self->word) + 1))
         return 1;
     strncpy(buffer, self->word, size);
     return 0;
 }
 
-int hangedGetKnownWord(Hanged * self, char * buffer, size_t size){
+uint8_t hangedGetKnownWord(Hanged * self, char * buffer, size_t size){
     if(size < (strlen(self->known_word) + 1))
         return 1;
     strncpy(buffer, self->known_word, size);
@@ -90,7 +91,7 @@ HangedState hangedGetState(Hanged * self){
     return self->state;
 }
 
-unsigned short hangedGetAttempts(Hanged * self){
+uint16_t hangedGetAttempts(Hanged * self){
     return self->attempts_count;
 }
 
@@ -103,7 +104,7 @@ size_t hangedGetLoses(Hanged * self){
 }
 
 //UN POCO HARCODEADA, DESHARCODEARLA. ESTA Y LA SIGUIENTE
-int hangedPackInformation(Hanged * self, char * package, size_t size){
+ssize_t hangedPackInformation(Hanged * self, char * package, size_t size){
     int requiredSize = strlen(self->known_word) + INFORMATION_PACK_HEADER_SIZE;
     if(size < requiredSize + 1) // VER LO DEL + 1 DESPUES
         return -1;
@@ -119,7 +120,7 @@ int hangedPackInformation(Hanged * self, char * package, size_t size){
     return INFORMATION_PACK_HEADER_SIZE + strlen(self->known_word);
 }
 
-unsigned short hangedUnpackInformationHeader(char * package, HangedState * state, short unsigned * attempts){
+uint16_t hangedUnpackInformationHeader(char * package, HangedState * state, uint16_t * attempts){
     *attempts = (unsigned short) package[0] & MASK_ATTEMPTS;
     char _state = (char) (package[0] & MASK_STATE) >> 7;
     if(_state){

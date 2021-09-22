@@ -3,14 +3,14 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <stdint.h>
 #include "common_socket.h"
 // VER LO QUE ESTABA ESCRITO EN LA CARPETA
 
 #define PENDING_CONNECTIONS 8
 #define LOCALHOST "localhost"
 
-static void _socketInitializeSockAddrInStruct(Socket * self, int port){
+static void _socketInitializeSockAddrInStruct(Socket * self, uint16_t port){
     memset(&(self->addr), 0, sizeof(struct  sockaddr_in));
     (self->addr).sin_family = AF_INET;
     (self->addr).sin_port = htons(port);
@@ -33,7 +33,7 @@ void socketUnInit(Socket * self){
     close(self->fd);
 }
 
-int socketConnect(Socket * self, char * host, int port){
+uint8_t socketConnect(Socket * self, char * host, uint16_t port){
     _socketInitializeSockAddrInStruct(self, port);
     if (strcmp(host, LOCALHOST)){
         if (!inet_pton(AF_INET, host, &(self->addr).sin_addr)) {
@@ -46,7 +46,7 @@ int socketConnect(Socket * self, char * host, int port){
     return 0;
 }
 
-int socketBindAndListen(Socket * self, int port){
+uint8_t socketBindAndListen(Socket * self, uint16_t port){
     _socketInitializeSockAddrInStruct(self, port);
     if (bind(self->fd,
              (struct sockaddr *) &(self->addr), sizeof(struct sockaddr))) {
@@ -58,7 +58,7 @@ int socketBindAndListen(Socket * self, int port){
     return 0;
 }
 
-int socketAccept(Socket * self, Socket * peer){
+uint8_t socketAccept(Socket * self, Socket * peer){
     socklen_t peer_addr_size = sizeof(struct sockaddr_in);
     int fd_peer = accept(self->fd,
                          (struct sockaddr *) &(self->addr), &peer_addr_size);
@@ -68,28 +68,26 @@ int socketAccept(Socket * self, Socket * peer){
     return 0;
 }
 
-
-//REVISAR FUNCIONES CON LO DEL DIPA
-int socketSend(Socket * socket, char * buffer, size_t size){
+ssize_t socketSend(Socket * socket, char * buffer, size_t size){
     size_t total_bytes_sent = 0;
     while ((size - total_bytes_sent) > 0){
         int bytes_sent = send(socket->fd, &buffer[total_bytes_sent],
                               size - total_bytes_sent, 0);
-        if (bytes_sent < 0)
+        if (bytes_sent == -1)
             return -1;
         total_bytes_sent += bytes_sent;
     }
     return total_bytes_sent;
 }
 
-int socketReceive(Socket * socket, char * buffer, size_t size){
+ssize_t socketReceive(Socket * socket, char * buffer, size_t size){
     size_t total_bytes_received = 0;
     while ((size - total_bytes_received) > 0){
 
         int bytes_received =
                 recv(socket->fd, &buffer[total_bytes_received],
                      size - total_bytes_received, 0);
-        if (bytes_received < 0)
+        if (bytes_received == -1)
             return -1;
         else if (!bytes_received)
             return total_bytes_received;

@@ -2,9 +2,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "common_file_reader.h"
 
-int fileReaderInit(FileReader * self, FILE * fds){
+uint16_t fileReaderInit(FileReader * self, FILE * fds){
     if (!fds)
         return 1;
     self->fds = fds;
@@ -16,7 +17,7 @@ void fileReaderUnInit(FileReader * self){
         fclose(self->fds);
 }
 
-int fileReaderInitFromName(FileReader * self, char * name){
+uint16_t fileReaderInitFromName(FileReader * self, char * name){
     if (!(self->fds = fopen(name, "r")))
         return 1;
     return 0;
@@ -26,7 +27,7 @@ bool fileReaderEOF(FileReader * self){
     return feof(self->fds);
 }
 
-int fileReaderReadLine(FileReader * self, char * output, size_t size){
+ssize_t fileReaderReadLine(FileReader * self, char * output, size_t size){
     size_t _size = size;
     ssize_t read;
     char * buffer = (char *) malloc(_size);
@@ -40,5 +41,5 @@ int fileReaderReadLine(FileReader * self, char * output, size_t size){
     strncpy(output, buffer, size);
     free(buffer);
     buffer = NULL;
-    return (int) read;
+    return read;
 }

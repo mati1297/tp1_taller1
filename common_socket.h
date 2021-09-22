@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdint.h>
 
 typedef struct {
     int fd;
@@ -19,10 +20,10 @@ typedef struct {
 void socketInit(Socket * self);
 void socketInitFromFd(Socket * self, int fd);
 void socketUnInit(Socket * self);
-int socketConnect(Socket * self, char * host, int port);
-int socketBindAndListen(Socket * self, int port);
-int socketAccept(Socket * self, Socket * peer);
-int socketSend(Socket * self, char * buffer, size_t size);
-int socketReceive(Socket * socket, char * buffer, size_t size);
+uint8_t socketConnect(Socket * self, char * host, uint16_t port);
+uint8_t socketBindAndListen(Socket * self, uint16_t port);
+uint8_t socketAccept(Socket * self, Socket * peer);
+ssize_t socketSend(Socket * self, char * buffer, size_t size);
+ssize_t socketReceive(Socket * socket, char * buffer, size_t size);
 
 #endif //TP1_TALLER1_COMMON_SOCKET_H
