@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "common_socket.h"
 #include "common_file_reader.h"
 #include "common_hanged.h"
@@ -18,11 +19,12 @@ int main(int argc, char * argv[]){
         return 1;
     }
 
-    int port = strtol(argv[1], NULL, 10);
-    if (port <= 0) {
-        fprintf(stderr, "%s\n", MSG_ERROR_INVALID_LETTER);
+    long port_ = strtol(argv[1], NULL, 10);
+    if (port_ <= 0 || port_ > USHRT_MAX) {
+        fprintf(stderr, "%s\n", MSG_ERROR_INVALID_PORT_NUMBER);
         return 1;
     }
+    uint16_t port = (uint16_t) port_;
 
     int attempts = strtol(argv[2], NULL, 10);
     if (attempts <= 0 || attempts > MAX_ATTEMPTS) {
