@@ -14,7 +14,7 @@
 
 typedef struct {
     int fd;
-    struct sockaddr_in addr;
+    struct sockaddr_in address;
 } Socket;
 
 void socketInit(Socket * self);

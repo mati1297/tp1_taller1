@@ -10,10 +10,15 @@
 #define PENDING_CONNECTIONS 8
 #define LOCALHOST "localhost"
 
-static void _socketInitializeSockAddrInStruct(Socket * self, uint16_t port){
-    memset(&(self->addr), 0, sizeof(struct  sockaddr_in));
-    (self->addr).sin_family = AF_INET;
-    (self->addr).sin_port = htons(port);
+static uint8_t _socketInitializeSocketAddressStruct(Socket * self, char * host, uint16_t port){
+    memset(&(self->address), 0, sizeof(struct  sockaddr_in));
+    (self->address).sin_family = AF_INET;
+    (self->address).sin_port = htons(port);
+    if (host && strcmp(host, LOCALHOST)){
+        if (!inet_pton(AF_INET, host, &(self->address).sin_addr))
+            return 1;
+    }
+    return 0;
 }
 
 void socketInit(Socket * self){
@@ -34,22 +39,18 @@ void socketUnInit(Socket * self){
 }
 
 uint8_t socketConnect(Socket * self, char * host, uint16_t port){
-    _socketInitializeSockAddrInStruct(self, port);
-    if (strcmp(host, LOCALHOST)){
-        if (!inet_pton(AF_INET, host, &(self->addr).sin_addr)) {
-            return 1;
-        }
-    }
+    if(_socketInitializeSocketAddressStruct(self, host, port))
+        return 1;
     if (connect(self->fd,
-                (struct sockaddr *) &(self->addr), sizeof(struct sockaddr)))
+                (struct sockaddr *) &(self->address), sizeof(struct sockaddr)))
         return 1;
     return 0;
 }
 
 uint8_t socketBindAndListen(Socket * self, uint16_t port){
-    _socketInitializeSockAddrInStruct(self, port);
+    _socketInitializeSocketAddressStruct(self, NULL, port);
     if (bind(self->fd,
-             (struct sockaddr *) &(self->addr), sizeof(struct sockaddr))) {
+             (struct sockaddr *) &(self->address), sizeof(struct sockaddr))) {
         return 1;
     }
     if (listen(self->fd, PENDING_CONNECTIONS)) {
@@ -61,7 +62,7 @@ uint8_t socketBindAndListen(Socket * self, uint16_t port){
 uint8_t socketAccept(Socket * self, Socket * peer){
     socklen_t peer_addr_size = sizeof(struct sockaddr_in);
     int fd_peer = accept(self->fd,
-                         (struct sockaddr *) &(self->addr), &peer_addr_size);
+                         (struct sockaddr *) &(self->address), &peer_addr_size);
     if (fd_peer < 0)
         return 1;
     socketInitFromFd(peer, fd_peer);
