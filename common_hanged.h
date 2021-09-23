@@ -30,11 +30,11 @@ typedef struct{
     char known_word[MAX_WORD_LENGTH + 1];
     uint16_t attempts_count, attempts;
     HangedState state;
-    size_t victories, loses;
+    size_t victories, defeats;
 } Hanged;
 
 
-void hangedInit(Hanged * self, size_t attempts);
+void hangedInit(Hanged * self, uint16_t attempts);
 uint8_t hangedAddWord(Hanged * self, char * word);
 uint8_t hangedTryLetter(Hanged * self, char letter);
 uint8_t hangedGetCorrectWord(Hanged * self, char * buffer, size_t size);
@@ -42,7 +42,7 @@ uint8_t hangedGetKnownWord(Hanged * self, char * buffer, size_t size);
 HangedState hangedGetState(Hanged * self);
 uint16_t hangedGetAttempts(Hanged * self);
 size_t hangedGetVictories(Hanged * self);
-size_t hangedGetLoses(Hanged * self);
+size_t hangedGetDefeats(Hanged * self);
 ssize_t hangedPackInformation(Hanged * self, char * buffer, size_t size);
 uint16_t hangedUnpackInformationHeader(char * package, HangedState * state, uint16_t * attempts);
 void hangedUnpackInformationWord(char * package, char * buffer, size_t size);

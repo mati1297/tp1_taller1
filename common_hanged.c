@@ -30,11 +30,11 @@ static bool _hangedCheckPlayerWin(Hanged * self){
     return true;
 }
 
-void hangedInit(Hanged * self, size_t attempts){
+void hangedInit(Hanged * self, uint16_t attempts){
     self->attempts = (attempts < MAX_ATTEMPTS) ? attempts : MAX_ATTEMPTS;
     self->state = STATE_INACTIVE;
     self->victories = 0;
-    self->loses = 0;
+    self->defeats = 0;
 }
 
 uint8_t hangedAddWord(Hanged * self, char * word) {
@@ -68,7 +68,7 @@ uint8_t hangedTryLetter(Hanged * self, char letter){
     else if (!self->attempts_count) {
         self->state = STATE_PLAYER_LOSES;
         strncpy(self->known_word, self->word, strlen(self->known_word));
-        self->loses++;
+        self->defeats++;
     }
     return 0;
 }
@@ -99,8 +99,8 @@ size_t hangedGetVictories(Hanged * self){
     return self->victories;
 }
 
-size_t hangedGetLoses(Hanged * self){
-    return self->loses;
+size_t hangedGetDefeats(Hanged * self){
+    return self->defeats;
 }
 
 //UN POCO HARCODEADA, DESHARCODEARLA. ESTA Y LA SIGUIENTE
