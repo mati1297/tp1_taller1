@@ -79,20 +79,20 @@ int main(int argc, char * argv[]){
             if(buffer_letters[i] < 'a' || buffer_letters[i] > 'z')
 				fprintf(stderr, "%s\n", MSG_ERROR_INVALID_LETTER);
 
-			if(socketSend(&socket, &buffer_letters[i], 1) < 1) {
+			if(socketSend(&socket, &buffer_letters[i], 1) == -1) {
 				fprintf(stderr, "%s\n", MSG_ERROR_SENDING_LETTERS);
 				return 1;
 			}
 
 
             memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
-            if(socketReceive(&socket, package, INFORMATION_PACK_HEADER_SIZE) < 0){
+            if(socketReceive(&socket, package, INFORMATION_PACK_HEADER_SIZE) == -1){
 				fprintf(stderr, "%s\n", MSG_ERROR_PACKAGE_RECEIVE);
                 return 1;
             }
             unsigned short size_word = hangedUnpackInformationHeader(package, &state, &attempts);
 
-            if(socketReceive(&socket, package, size_word) < 0){
+            if(socketReceive(&socket, package, size_word) == -1){
                 fprintf(stderr, "%s\n", MSG_ERROR_PACKAGE_RECEIVE);
                 return 1;
             }

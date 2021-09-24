@@ -36,13 +36,13 @@ ServerState serverExecute(Server * self){
         while(hangedGetState(&self->hanged) == STATE_IN_PROGRESS) {
 
             memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
-            if ((packet_size = hangedPackInformation(&self->hanged, package, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) < 0)
+            if ((packet_size = hangedPackInformation(&self->hanged, package, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) == -1)
                 return STATE_PACKING_INFO_ERROR;
 
-            if (socketSend(&self->peer, package, packet_size) < 0)
+            if (socketSend(&self->peer, package, packet_size) == -1)
                 return STATE_SENDING_PACKET_ERROR;
 
-            if (socketReceive(&self->peer, &new_letter, 1) < 0)
+            if (socketReceive(&self->peer, &new_letter, 1) == -1)
                 return STATE_RECEIVING_LETTER_ERROR;
 
             hangedTryLetter(&self->hanged, new_letter);
@@ -52,7 +52,7 @@ ServerState serverExecute(Server * self){
         if ((packet_size = hangedPackInformation(&self->hanged, package, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) < 0)
             return STATE_PACKING_INFO_ERROR;
 
-        if (socketSend(&self->peer, package, packet_size) < 0)
+        if (socketSend(&self->peer, package, packet_size) == -1)
             return STATE_SENDING_PACKET_ERROR;
     }
 
