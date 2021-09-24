@@ -2,3 +2,5 @@ TDAear client
 poner la funcion de empaquetar en SERVER y de desempaquetar en CLIENT. hacerlo cuando haga lo de TDAR cliente
 sacar lo del archivo de spanish, poner los textos hardcodeados?
 TODO CUANDO HAGA EL TDA DEL CLIENTE
+Usar getaddrinfo
+Ver donde vendria bien usar malloc
