@@ -30,7 +30,7 @@ static bool _hangedCheckPlayerWin(Hanged * self){
     return true;
 }
 
-void hangedInit(Hanged * self, uint16_t attempts){
+void hangedInit(Hanged * self, uint8_t attempts){
     self->attempts = (attempts < MAX_ATTEMPTS) ? attempts : MAX_ATTEMPTS;
     self->state = STATE_INACTIVE;
     self->victories = 0;
@@ -91,7 +91,7 @@ HangedState hangedGetState(Hanged * self){
     return self->state;
 }
 
-uint16_t hangedGetAttempts(Hanged * self){
+uint8_t hangedGetAttempts(Hanged * self){
     return self->attempts_count;
 }
 
@@ -103,7 +103,6 @@ size_t hangedGetDefeats(Hanged * self){
     return self->defeats;
 }
 
-//UN POCO HARCODEADA, DESHARCODEARLA. ESTA Y LA SIGUIENTE
 ssize_t hangedPackInformation(Hanged * self, char * package, size_t size){
     int requiredSize = strlen(self->known_word) + INFORMATION_PACK_HEADER_SIZE;
     if(size < requiredSize + 1) // VER LO DEL + 1 DESPUES
@@ -120,7 +119,7 @@ ssize_t hangedPackInformation(Hanged * self, char * package, size_t size){
     return INFORMATION_PACK_HEADER_SIZE + strlen(self->known_word);
 }
 
-uint16_t hangedUnpackInformationHeader(char * package, HangedState * state, uint16_t * attempts){
+uint16_t hangedUnpackInformationHeader(char * package, HangedState * state, uint8_t * attempts){
     *attempts = (unsigned short) package[0] & MASK_ATTEMPTS;
     char _state = (char) (package[0] & MASK_STATE) >> 7;
     if(_state){
