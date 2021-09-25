@@ -30,8 +30,8 @@ void socketInitFromFd(Socket * self, int fd){
 }
 
 void socketUnInit(Socket * self){
-    shutdown(self->fd, SHUT_WR); // BUSCAR ESTO DE SHUT
     close(self->fd);
+    self->fd = 0;
 }
 
 uint8_t socketConnect(Socket * self, char * host, char * port){
@@ -94,7 +94,9 @@ ssize_t socketSend(Socket * socket, char * buffer, size_t size){
     size_t total_bytes_sent = 0;
     while ((size - total_bytes_sent) > 0){
         int bytes_sent = send(socket->fd, &buffer[total_bytes_sent],
-                              size - total_bytes_sent, 0);
+                              size - total_bytes_sent, MSG_NOSIGNAL);
+        if(bytes_sent == 0)
+            return -1;
         if (bytes_sent == -1)
             return -1;
         total_bytes_sent += bytes_sent;
