@@ -60,7 +60,7 @@ ClientState clientExecute(Client * self){
     _clientPrintProgressMessage(attempts, buffer_word);
 
     while (game_state == STATE_IN_PROGRESS){
-        if ((read = fileReaderReadLine(&self->file_reader, buffer_letters, }
+        if ((read = fileReaderReadLine(&self->file_reader, buffer_letters,
                                        MAX_LETTERS_PER_LINE)) == -1)
             return STATE_READING_STDIN_ERROR;
 
