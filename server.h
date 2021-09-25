@@ -35,7 +35,8 @@ typedef enum{
     STATE_RECEIVING_LETTER_ERROR,
 } ServerState;
 
-ServerState serverInit(Server * self, char * filename, char * port, char * attempts);
+ServerState serverInit(Server * self, char * filename,
+                       char * port, char * attempts);
 ServerState serverExecute(Server * self);
 void serverUnInit(Server * self);
 void serverPrintError(ServerState state);

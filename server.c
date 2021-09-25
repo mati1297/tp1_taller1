@@ -6,12 +6,15 @@
 
 void _serverPrintFinalMessage(Server * self){
     printf("%s:\n", MSG_HANGED_SUMMARY);
-    printf("\t%s: %ld\n", MSG_HANGED_VICTORIES, hangedGetVictories(&self->hanged));
-    printf("\t%s: %ld\n", MSG_HANGED_DEFEATS, hangedGetDefeats(&self->hanged));
+    printf("\t%s: %ld\n", MSG_HANGED_VICTORIES,
+           hangedGetVictories(&self->hanged));
+    printf("\t%s: %ld\n", MSG_HANGED_DEFEATS,
+           hangedGetDefeats(&self->hanged));
 }
 
-ServerState serverInit(Server * self, char * filename, char * port, char * attempts){
-    if(fileReaderInitFromName(&self->file_reader, filename))
+ServerState serverInit(Server * self, char * filename,
+                       char * port, char * attempts){
+    if (fileReaderInitFromName(&self->file_reader, filename))
         return STATE_FILE_OPENING_ERROR;
 
     long attempts_ = strtol(attempts, NULL, 10);
@@ -22,7 +25,7 @@ ServerState serverInit(Server * self, char * filename, char * port, char * attem
     uint8_t attempts_number = (uint8_t) attempts_;
 
     socketInit(&self->socket);
-    if(socketBindAndListen(&self->socket, port))
+    if (socketBindAndListen(&self->socket, port))
         return STATE_LISTENING_ERROR;
 
     hangedInit(&self->hanged, attempts_number);
@@ -36,20 +39,21 @@ ServerState serverExecute(Server * self){
     char new_letter;
     int packet_size;
 
-    while(!fileReaderEOF(&self->file_reader)){
+    while (!fileReaderEOF(&self->file_reader)){
         fileReaderReadLine(&self->file_reader, buffer, MAX_WORD_LENGTH + 1);
-        if(buffer[0] == 0)
+        if (buffer[0] == 0)
             continue;
-        if(hangedAddWord(&self->hanged, buffer))
+        if (hangedAddWord(&self->hanged, buffer))
             continue;
 
-        if(socketAccept(&self->socket, &self->peer))
+        if (socketAccept(&self->socket, &self->peer))
             return STATE_CONNECTING_TO_CLIENT_ERROR;
 
-        while(hangedGetState(&self->hanged) == STATE_IN_PROGRESS) {
-
+        while (hangedGetState(&self->hanged) == STATE_IN_PROGRESS) {
             memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
-            if ((packet_size = hangedPackInformation(&self->hanged, package, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) == -1)
+            if ((packet_size = hangedPackInformation(
+                    &self->hanged, package,
+                    MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) == -1)
                 return STATE_PACKING_INFO_ERROR;
 
             if (socketSend(&self->peer, package, packet_size) == -1)
@@ -62,7 +66,9 @@ ServerState serverExecute(Server * self){
         }
 
         memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
-        if ((packet_size = hangedPackInformation(&self->hanged, package, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) < 0)
+        if ((packet_size = hangedPackInformation(
+                &self->hanged, package,
+                MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) < 0)
             return STATE_PACKING_INFO_ERROR;
 
         if (socketSend(&self->peer, package, packet_size) == -1)
@@ -80,7 +86,7 @@ void serverUnInit(Server * self){
 }
 
 void serverPrintError(ServerState state){
-    switch(state){
+    switch (state){
         case STATE_FILE_OPENING_ERROR:
             fprintf(stderr, "%s\n", MSG_ERROR_OPEN_FILE);
             break;

@@ -9,7 +9,6 @@
 
 
 int main(int argc, char * argv[]) {
-
     if (argc < (ARGUMENTS_AMOUNT + 1)) {
         fprintf(stderr, "%s %d\n", MSG_ERROR_ARGS_AMOUNT, ARGUMENTS_AMOUNT);
         return 1;
@@ -20,7 +19,8 @@ int main(int argc, char * argv[]) {
 
     clientInit(&client);
 
-    if ((client_state = clientConnect(&client, argv[1], argv[2])) != STATE_SUCCESS){
+    if ((client_state = clientConnect(&client, argv[1],
+                                      argv[2])) != STATE_SUCCESS){
         clientPrintError(client_state);
         clientUnInit(&client);
         return EXIT_FAILURE;

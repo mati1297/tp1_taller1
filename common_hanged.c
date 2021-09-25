@@ -64,8 +64,7 @@ uint8_t hangedTryLetter(Hanged * self, char letter){
     if (_hangedCheckPlayerWin(self)) {
         self->state = STATE_PLAYER_WINS;
         self->victories++;
-    }
-    else if (!self->attempts_count) {
+    } else if (!self->attempts_count) {
         self->state = STATE_PLAYER_LOSES;
         strncpy(self->known_word, self->word, strlen(self->known_word));
         self->defeats++;
@@ -74,14 +73,14 @@ uint8_t hangedTryLetter(Hanged * self, char letter){
 }
 
 uint8_t hangedGetCorrectWord(Hanged * self, char * buffer, size_t size){
-    if(size < (strlen(self->word) + 1))
+    if (size < (strlen(self->word) + 1))
         return 1;
     strncpy(buffer, self->word, size);
     return 0;
 }
 
 uint8_t hangedGetKnownWord(Hanged * self, char * buffer, size_t size){
-    if(size < (strlen(self->known_word) + 1))
+    if (size < (strlen(self->known_word) + 1))
         return 1;
     strncpy(buffer, self->known_word, size);
     return 0;
@@ -105,32 +104,33 @@ size_t hangedGetDefeats(Hanged * self){
 
 ssize_t hangedPackInformation(Hanged * self, char * package, size_t size){
     int requiredSize = strlen(self->known_word) + INFORMATION_PACK_HEADER_SIZE;
-    if(size < requiredSize + 1) // VER LO DEL + 1 DESPUES
+    if (size < requiredSize + 1) // VER LO DEL + 1 DESPUES
         return -1;
     package[0] = (char) (self->attempts_count) & MASK_ATTEMPTS;
-    if(self->state == STATE_IN_PROGRESS)
+    if (self->state == STATE_IN_PROGRESS)
         package[0] &= MASK_STATE_IN_PROGRESS;
     else
         package[0] |= MASK_STATE_FINISHED;
-    unsigned short string_length = (unsigned short) strlen(self->word);
+    uint16_t string_length = (uint16_t) strlen(self->word);
     string_length = htons(string_length);
     memcpy(&package[1], (const char *) &string_length, sizeof(unsigned short));
     strncpy(&package[3], self->known_word, ntohs(string_length));
     return INFORMATION_PACK_HEADER_SIZE + strlen(self->known_word);
 }
 
-uint16_t hangedUnpackInformationHeader(char * package, HangedState * state, uint8_t * attempts){
-    *attempts = (unsigned short) package[0] & MASK_ATTEMPTS;
+uint16_t hangedUnpackInformationHeader(char * package, HangedState * state,
+                                       uint8_t * attempts){
+    *attempts = (uint16_t) package[0] & MASK_ATTEMPTS;
     char _state = (char) (package[0] & MASK_STATE) >> 7;
-    if(_state){
-        if(*attempts > 0)
+    if (_state){
+        if (*attempts > 0)
             *state = STATE_PLAYER_WINS;
         else
             *state = STATE_PLAYER_LOSES;
     } else {
         *state = STATE_IN_PROGRESS;
     }
-    unsigned short string_length = 0;
+    uint16_t string_length = 0;
     memcpy((char *) &string_length, &package[1], sizeof(unsigned short));
     string_length = ntohs(string_length);
     return string_length;

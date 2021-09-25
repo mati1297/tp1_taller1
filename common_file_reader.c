@@ -33,7 +33,7 @@ ssize_t fileReaderReadLine(FileReader * self, char * output, size_t size){
     char * buffer = (char *) malloc(_size);
     read = getline(&buffer, &_size, self->fds);
     buffer[--read] = 0;
-    if(size < _size || _size == -1){
+    if (size < _size || _size == -1){
         free(buffer);
         buffer = NULL;
         return -1;
