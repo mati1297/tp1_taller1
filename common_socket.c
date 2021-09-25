@@ -1,36 +1,32 @@
 #include <stdio.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdint.h>
+#include <netdb.h>
 #include "common_socket.h"
-// VER LO QUE ESTABA ESCRITO EN LA CARPETA
 
-#define PENDING_CONNECTIONS 8
-#define LOCALHOST "localhost"
 
-static uint8_t _socketInitializeSocketAddressStruct(Socket * self, char * host, uint16_t port){
-    memset(&(self->address), 0, sizeof(struct  sockaddr_in));
-    (self->address).sin_family = AF_INET;
-    (self->address).sin_port = htons(port);
-    if (host && strcmp(host, LOCALHOST)){
-        if (!inet_pton(AF_INET, host, &(self->address).sin_addr))
-            return 1;
-    }
+
+static uint8_t _socketGetAddressInfo(struct addrinfo ** result, char * host, char * port){
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    if(host == NULL)
+        hints.ai_flags = AI_PASSIVE;
+    int s = getaddrinfo(host, port, &hints, result);
+    if (s)
+        return 1;
     return 0;
 }
 
 void socketInit(Socket * self){
-    self->fd = socket(AF_INET, SOCK_STREAM, 0);
-    int optval = 1;
-    setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
+    self->fd = 0;
 }
 
 void socketInitFromFd(Socket * self, int fd){
     self->fd = fd;
-    int optval = 1;
-    setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
 }
 
 void socketUnInit(Socket * self){
@@ -38,31 +34,56 @@ void socketUnInit(Socket * self){
     close(self->fd);
 }
 
-uint8_t socketConnect(Socket * self, char * host, uint16_t port){
-    if(_socketInitializeSocketAddressStruct(self, host, port))
+uint8_t socketConnect(Socket * self, char * host, char * port){
+    struct addrinfo * result, * ptr;
+    if(_socketGetAddressInfo(&result, host, port)) {
         return 1;
-    if (connect(self->fd,
-                (struct sockaddr *) &(self->address), sizeof(struct sockaddr)))
+    }
+    for (ptr = result; ptr; ptr = ptr->ai_next){
+        int skt = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if(skt != -1) {
+            if (connect(skt, ptr->ai_addr, ptr->ai_addrlen)) {
+                close(skt);
+            }
+            else {
+                self->fd = skt;
+                break;
+            }
+        }
+    }
+    freeaddrinfo(ptr);
+    if(!self->fd)
         return 1;
+
+    int optval = 1;
+    setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
     return 0;
 }
 
-uint8_t socketBindAndListen(Socket * self, uint16_t port){
-    _socketInitializeSocketAddressStruct(self, NULL, port);
-    if (bind(self->fd,
-             (struct sockaddr *) &(self->address), sizeof(struct sockaddr))) {
+uint8_t socketBindAndListen(Socket * self, char * port){
+    struct addrinfo * result;
+    if(_socketGetAddressInfo(&result, NULL, port))
+        return 1;
+    self->fd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    int optval = 1;
+    setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
+
+    if (bind(self->fd, result->ai_addr, result->ai_addrlen)) {
+        freeaddrinfo(result);
+        close(self->fd);
+        self->fd = 0;
         return 1;
     }
-    if (listen(self->fd, PENDING_CONNECTIONS)) {
+    freeaddrinfo(result);
+
+    if (listen(self->fd, SERVER_PENDING_CONNECTIONS))
         return 1;
-    }
+
     return 0;
 }
 
 uint8_t socketAccept(Socket * self, Socket * peer){
-    socklen_t peer_addr_size = sizeof(struct sockaddr_in);
-    int fd_peer = accept(self->fd,
-                         (struct sockaddr *) &(self->address), &peer_addr_size);
+    int fd_peer = accept(self->fd, NULL, NULL);
     if (fd_peer < 0)
         return 1;
     socketInitFromFd(peer, fd_peer);
