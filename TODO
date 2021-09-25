@@ -2,3 +2,4 @@ Poner la funcion de empaquetar en SERVER y de desempaquetar en CLIENT. hacerlo c
 usar perror donde corresponda
 ver lo de malloc para entrada de palabras
 Revisar espacios y saltos de linea
+
