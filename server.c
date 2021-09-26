@@ -6,9 +6,9 @@
 
 void _serverPrintFinalMessage(Server * self){
     printf("%s:\n", MSG_HANGED_SUMMARY);
-    printf("\t%s: %zd\n", MSG_HANGED_VICTORIES,
+    printf("\t%s: %zu\n", MSG_HANGED_VICTORIES,
            hangedGetVictories(&self->hanged));
-    printf("\t%s: %zd\n", MSG_HANGED_DEFEATS,
+    printf("\t%s: %zu\n", MSG_HANGED_DEFEATS,
            hangedGetDefeats(&self->hanged));
 }
 
