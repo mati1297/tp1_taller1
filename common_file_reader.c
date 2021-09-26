@@ -35,11 +35,12 @@ ssize_t fileReaderReadLine(FileReader * self, char ** output, size_t * size){
         free(*output);
         *output = NULL;
         *size = 0;
+        if(fileReaderEOF(self))
+            return 0;
         return -1;
     }
-    if(read == 0)
-        return 0;
+    if(read > 0)
+      (*output)[--read] = 0;
 
-    (*output)[--read] = 0;
     return read;
 }

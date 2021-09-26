@@ -92,6 +92,8 @@ ClientState clientExecute(Client * self){
 
             if (game_state == STATE_IN_PROGRESS)
                 _clientPrintProgressMessage(attempts, buffer_word);
+            else
+                break;
         }
     }
     free(buffer_letters);

@@ -45,9 +45,10 @@ ServerState serverExecute(Server * self){
         ssize_t read = fileReaderReadLine(&self->file_reader, &buffer, &buffer_size);
 
         if(read == -1) {
-            free(buffer);
-            buffer = NULL;
             return STATE_READING_WORD_ERROR;
+        }
+        if(read == 0){
+            continue;
         }
         if(read > MAX_WORD_LENGTH) {
             free(buffer);
