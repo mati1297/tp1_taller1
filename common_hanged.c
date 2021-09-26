@@ -72,26 +72,8 @@ uint8_t hangedTryLetter(Hanged * self, char letter){
     return 0;
 }
 
-uint8_t hangedGetCorrectWord(Hanged * self, char * buffer, size_t size){
-    if (size < (strlen(self->word) + 1))
-        return 1;
-    strncpy(buffer, self->word, size);
-    return 0;
-}
-
-uint8_t hangedGetKnownWord(Hanged * self, char * buffer, size_t size){
-    if (size < (strlen(self->known_word) + 1))
-        return 1;
-    strncpy(buffer, self->known_word, size);
-    return 0;
-}
-
 HangedState hangedGetState(Hanged * self){
     return self->state;
-}
-
-uint8_t hangedGetAttempts(Hanged * self){
-    return self->attempts_count;
 }
 
 size_t hangedGetVictories(Hanged * self){
@@ -121,7 +103,7 @@ ssize_t hangedPackInformation(Hanged * self, char * package, size_t size){
 uint16_t hangedUnpackInformationHeader(char * package, HangedState * state,
                                        uint8_t * attempts){
     *attempts = (uint16_t) package[0] & MASK_ATTEMPTS;
-    char _state = (char) (package[0] & MASK_STATE) >> 7;
+    char _state = (char) (package[0] & MASK_STATE);
     if (_state){
         if (*attempts > 0)
             *state = STATE_PLAYER_WINS;

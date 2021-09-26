@@ -36,10 +36,7 @@ typedef struct{
 void hangedInit(Hanged * self, uint8_t attempts);
 uint8_t hangedAddWord(Hanged * self, char * word);
 uint8_t hangedTryLetter(Hanged * self, char letter);
-uint8_t hangedGetCorrectWord(Hanged * self, char * buffer, size_t size);
-uint8_t hangedGetKnownWord(Hanged * self, char * buffer, size_t size);
 HangedState hangedGetState(Hanged * self);
-uint8_t hangedGetAttempts(Hanged * self);
 size_t hangedGetVictories(Hanged * self);
 size_t hangedGetDefeats(Hanged * self);
 ssize_t hangedPackInformation(Hanged * self, char * buffer, size_t size);

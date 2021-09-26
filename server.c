@@ -6,9 +6,9 @@
 
 void _serverPrintFinalMessage(Server * self){
     printf("%s:\n", MSG_HANGED_SUMMARY);
-    printf("\t%s: %ld\n", MSG_HANGED_VICTORIES,
+    printf("\t%s: %zd\n", MSG_HANGED_VICTORIES,
            hangedGetVictories(&self->hanged));
-    printf("\t%s: %ld\n", MSG_HANGED_DEFEATS,
+    printf("\t%s: %zd\n", MSG_HANGED_DEFEATS,
            hangedGetDefeats(&self->hanged));
 }
 
@@ -42,20 +42,20 @@ ServerState serverExecute(Server * self){
 
 
     while (!fileReaderEOF(&self->file_reader)){
-        ssize_t read = fileReaderReadLine(&self->file_reader, &buffer, &buffer_size);
+        ssize_t read = fileReaderReadLine(&self->file_reader,
+                                          &buffer, &buffer_size);
 
-        if(read == -1) {
+        if (read == -1) {
             return STATE_READING_WORD_ERROR;
         }
-        if(read == 0){
+        if (read == 0){
             continue;
         }
-        if(read > MAX_WORD_LENGTH) {
+        if (read > MAX_WORD_LENGTH) {
             free(buffer);
             buffer = NULL;
             continue;
         }
-
 
         if (buffer[0] == 0){
             free(buffer);

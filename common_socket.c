@@ -31,7 +31,7 @@ void socketInitFromFd(Socket * self, int fd){
 }
 
 void socketUnInit(Socket * self){
-    if(self->fd){
+    if (self->fd){
         close(self->fd);
         self->fd = 0;
     }

@@ -47,7 +47,6 @@ ClientState clientConnect(Client * self, char * host, char * port){
 
 ClientState clientExecute(Client * self){
     char buffer_word[MAX_WORD_LENGTH];
-    size_t read;
     HangedState game_state = STATE_IN_PROGRESS;
     uint8_t attempts;
 
@@ -62,7 +61,7 @@ ClientState clientExecute(Client * self){
     size_t buffer_letters_size = 0;
 
     while (game_state == STATE_IN_PROGRESS){
-
+        size_t read;
         if ((read = fileReaderReadLine(&self->file_reader, &buffer_letters,
                                        &buffer_letters_size)) == -1) {
             free(buffer_letters);

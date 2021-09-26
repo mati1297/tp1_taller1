@@ -31,15 +31,15 @@ bool fileReaderEOF(FileReader * self){
 ssize_t fileReaderReadLine(FileReader * self, char ** output, size_t * size){
     ssize_t read;
     read = getline(output, size, self->fds);
-    if(read == -1) {
+    if (read == -1) {
         free(*output);
         *output = NULL;
         *size = 0;
-        if(fileReaderEOF(self))
+        if (fileReaderEOF(self))
             return 0;
         return -1;
     }
-    if(read > 0)
+    if (read > 0)
       (*output)[--read] = 0;
 
     return read;
