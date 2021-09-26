@@ -31,8 +31,10 @@ void socketInitFromFd(Socket * self, int fd){
 }
 
 void socketUnInit(Socket * self){
-    close(self->fd);
-    self->fd = 0;
+    if(self->fd){
+        close(self->fd);
+        self->fd = 0;
+    }
 }
 
 uint8_t socketConnect(Socket * self, char * host, char * port){

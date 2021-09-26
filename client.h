@@ -4,8 +4,6 @@
 #include "common_socket.h"
 #include "common_hanged.h"
 
-#define MAX_LETTERS_PER_LINE 50
-
 #define MSG_ERROR_ARGS_AMOUNT "La cantidad de argumentos debe ser"
 #define MSG_ERROR_INVALID_PORT_NUMBER "Numero de puerto invalido"
 #define MSG_ERROR_SERVER_CONNECTION "Error al conectar al server"

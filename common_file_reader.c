@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
 #include "common_file_reader.h"
 
 uint16_t fileReaderInit(FileReader * self, FILE * fds){
@@ -27,19 +28,18 @@ bool fileReaderEOF(FileReader * self){
     return feof(self->fds);
 }
 
-ssize_t fileReaderReadLine(FileReader * self, char * output, size_t size){
-    size_t _size = size;
+ssize_t fileReaderReadLine(FileReader * self, char ** output, size_t * size){
     ssize_t read;
-    char * buffer = (char *) malloc(_size);
-    read = getline(&buffer, &_size, self->fds);
-    buffer[--read] = 0;
-    if (size < _size || _size == -1){
-        free(buffer);
-        buffer = NULL;
+    read = getline(output, size, self->fds);
+    if(read == -1) {
+        free(*output);
+        *output = NULL;
+        *size = 0;
         return -1;
     }
-    strncpy(output, buffer, size);
-    free(buffer);
-    buffer = NULL;
+    if(read == 0)
+        return 0;
+
+    (*output)[--read] = 0;
     return read;
 }

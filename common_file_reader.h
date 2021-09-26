@@ -15,7 +15,7 @@ uint16_t fileReaderInit(FileReader * self, FILE * fds);
 void fileReaderUnInit(FileReader * self);
 uint16_t fileReaderInitFromName(FileReader * self, char * name);
 bool fileReaderEOF(FileReader * self);
-ssize_t fileReaderReadLine(FileReader * self, char * output, size_t size);
+ssize_t fileReaderReadLine(FileReader * self, char ** output, size_t * size);
 
 
 #endif

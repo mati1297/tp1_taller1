@@ -113,7 +113,7 @@ ssize_t hangedPackInformation(Hanged * self, char * package, size_t size){
         package[0] |= MASK_STATE_FINISHED;
     uint16_t string_length = (uint16_t) strlen(self->word);
     string_length = htons(string_length);
-    memcpy(&package[1], (const char *) &string_length, sizeof(unsigned short));
+    memcpy(&package[1], (const char *) &string_length, sizeof(uint16_t));
     strncpy(&package[3], self->known_word, ntohs(string_length));
     return INFORMATION_PACK_HEADER_SIZE + strlen(self->known_word);
 }
@@ -131,7 +131,7 @@ uint16_t hangedUnpackInformationHeader(char * package, HangedState * state,
         *state = STATE_IN_PROGRESS;
     }
     uint16_t string_length = 0;
-    memcpy((char *) &string_length, &package[1], sizeof(unsigned short));
+    memcpy((char *) &string_length, &package[1], sizeof(uint16_t));
     string_length = ntohs(string_length);
     return string_length;
 }

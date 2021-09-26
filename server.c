@@ -34,27 +34,55 @@ ServerState serverInit(Server * self, char * filename,
 }
 
 ServerState serverExecute(Server * self){
-    char buffer[MAX_WORD_LENGTH + 1];
+    char * buffer = NULL;
+    size_t buffer_size = 0;
     char package[MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE];
     char new_letter;
     int packet_size;
 
-    while (!fileReaderEOF(&self->file_reader)){
-        fileReaderReadLine(&self->file_reader, buffer, MAX_WORD_LENGTH + 1);
-        if (buffer[0] == 0)
-            continue;
-        if (hangedAddWord(&self->hanged, buffer))
-            continue;
 
-        if (socketAccept(&self->socket, &self->peer))
+    while (!fileReaderEOF(&self->file_reader)){
+        ssize_t read = fileReaderReadLine(&self->file_reader, &buffer, &buffer_size);
+
+        if(read == -1) {
+            free(buffer);
+            buffer = NULL;
+            return STATE_READING_WORD_ERROR;
+        }
+        if(read > MAX_WORD_LENGTH) {
+            free(buffer);
+            buffer = NULL;
+            continue;
+        }
+
+
+        if (buffer[0] == 0){
+            free(buffer);
+            buffer = NULL;
+            continue;
+        }
+
+        if (hangedAddWord(&self->hanged, buffer)) {
+            free(buffer);
+            buffer = NULL;
+            continue;
+        }
+
+
+        free(buffer);
+        buffer = NULL;
+
+        if (socketAccept(&self->socket, &self->peer)) {
             return STATE_CONNECTING_TO_CLIENT_ERROR;
+        }
 
         while (hangedGetState(&self->hanged) == STATE_IN_PROGRESS) {
             memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
             if ((packet_size = hangedPackInformation(
                     &self->hanged, package,
-                    MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) == -1)
+                    MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) == -1) {
                 return STATE_PACKING_INFO_ERROR;
+            }
 
             if (socketSend(&self->peer, package, packet_size) == -1)
                 return STATE_SENDING_PACKET_ERROR;
@@ -108,6 +136,9 @@ void serverPrintError(ServerState state){
             break;
         case STATE_RECEIVING_LETTER_ERROR:
             fprintf(stderr, "%s\n", MSG_ERROR_LETTERS_RECEIVE);
+            break;
+        case STATE_READING_WORD_ERROR:
+            fprintf(stderr, "%s\n", MSG_ERROR_READING_WORD);
             break;
         default:
             break;

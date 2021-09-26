@@ -47,7 +47,6 @@ ClientState clientConnect(Client * self, char * host, char * port){
 
 ClientState clientExecute(Client * self){
     char buffer_word[MAX_WORD_LENGTH];
-    char buffer_letters[MAX_LETTERS_PER_LINE + 1];
     size_t read;
     HangedState game_state = STATE_IN_PROGRESS;
     uint8_t attempts;
@@ -59,10 +58,17 @@ ClientState clientExecute(Client * self){
 
     _clientPrintProgressMessage(attempts, buffer_word);
 
+    char * buffer_letters = NULL;
+    size_t buffer_letters_size = 0;
+
     while (game_state == STATE_IN_PROGRESS){
-        if ((read = fileReaderReadLine(&self->file_reader, buffer_letters,
-                                       MAX_LETTERS_PER_LINE)) == -1)
+
+        if ((read = fileReaderReadLine(&self->file_reader, &buffer_letters,
+                                       &buffer_letters_size)) == -1) {
+            free(buffer_letters);
+            buffer_letters = NULL;
             return STATE_READING_STDIN_ERROR;
+        }
 
         for (int i = 0; i < read; i++){
             //Envio la letra
@@ -71,17 +77,25 @@ ClientState clientExecute(Client * self){
                 continue;
             }
 
-            if (socketSend(&self->socket, &buffer_letters[i], 1) == -1)
+            if (socketSend(&self->socket, &buffer_letters[i], 1) == -1) {
+                free(buffer_letters);
+                buffer_letters = NULL;
                 return STATE_SENDING_LETTER_ERROR;
+            }
 
             if (_clientReceiveAndUnpackPacket(self, &game_state,
-                                              &attempts, buffer_word))
+                                              &attempts, buffer_word)) {
+                free(buffer_letters);
+                buffer_letters = NULL;
                 return STATE_RECEIVING_PACKET_ERROR;
+            }
 
             if (game_state == STATE_IN_PROGRESS)
                 _clientPrintProgressMessage(attempts, buffer_word);
         }
     }
+    free(buffer_letters);
+    buffer_letters = NULL;
     _clientPrintFinalMessage(game_state, buffer_word);
 
     return STATE_SUCCESS;

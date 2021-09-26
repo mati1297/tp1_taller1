@@ -13,6 +13,7 @@
 #define MSG_ERROR_SENDING_PACKET "Error al enviar paquete"
 #define MSG_ERROR_LETTERS_RECEIVE "Error al recibir letras"
 #define MSG_ERROR_INVALID_ATTEMPTS_AMOUNT "Cantidad de intentos invalida"
+#define MSG_ERROR_READING_WORD "Error al leer la palabra"
 
 #define MSG_HANGED_SUMMARY "Resumen"
 #define MSG_HANGED_VICTORIES "Victorias"
@@ -33,6 +34,7 @@ typedef enum{
     STATE_PACKING_INFO_ERROR,
     STATE_SENDING_PACKET_ERROR,
     STATE_RECEIVING_LETTER_ERROR,
+    STATE_READING_WORD_ERROR
 } ServerState;
 
 ServerState serverInit(Server * self, char * filename,
