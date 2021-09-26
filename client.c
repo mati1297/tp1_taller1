@@ -29,7 +29,7 @@ static void _clientPrintProgressMessage(uint8_t attempts, char * buffer){
 
 static void _clientPrintFinalMessage(HangedState game_state, char * buffer){
     if (game_state == STATE_PLAYER_WINS)
-        printf("%s!!\n", MSG_HANGED_YOU_WIN);
+        printf("%s\n", MSG_HANGED_YOU_WIN);
     else
         printf("%s: '%s'\n", MSG_HANGED_YOU_LOSE, buffer);
 }
