@@ -102,6 +102,8 @@ ServerState serverExecute(Server * self){
 
         if (socketSend(&self->peer, package, packet_size) == -1)
             return STATE_SENDING_PACKET_ERROR;
+
+        socketUnInit(&self->peer);
     }
 
     _serverPrintFinalMessage(self);
