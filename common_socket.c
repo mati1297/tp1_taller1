@@ -78,7 +78,6 @@ uint8_t socketConnect(Socket * self, char * host, char * port){
     // Se setea el socket para que pueda reutilizar la direccion.
     int optval = 1;
     setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
-    printf("Hola\n");
     return 0;
 }
 
