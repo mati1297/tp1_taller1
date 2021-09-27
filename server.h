@@ -20,7 +20,7 @@
 #define MSG_HANGED_DEFEATS "Derrotas"
 
 typedef struct {
-    Socket socket, peer;
+    Socket socket;
     Hanged hanged;
     FileReader file_reader;
 } Server;

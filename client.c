@@ -38,13 +38,15 @@ static uint8_t _clientReceiveAndUnpackPacket(Client * self, HangedState * state,
     char packet[MAX_WORD_LENGTH  + INFORMATION_PACK_HEADER_SIZE];
     memset(packet, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
 
-    if (socketReceive(&self->socket, packet, INFORMATION_PACK_HEADER_SIZE) < 0)
+    if (socketReceive(&self->socket,
+                      packet, INFORMATION_PACK_HEADER_SIZE)
+                      != INFORMATION_PACK_HEADER_SIZE)
         return 1;
 
     uint16_t size_word = _clientUnpackInformationHeader(packet, state,
                                                         attempts);
 
-    if (socketReceive(&self->socket, packet, size_word) < 0)
+    if (socketReceive(&self->socket, packet, size_word) != size_word)
         return 1;
 
     if (_clientUnpackInformationWord(packet, buffer, size_word))

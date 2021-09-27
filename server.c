@@ -57,6 +57,7 @@ ServerState serverExecute(Server * self){
     char * packet;
     char new_letter;
     int packet_size;
+    Socket peer;
 
 
     while (!fileReaderEOF(&self->file_reader)){
@@ -86,7 +87,7 @@ ServerState serverExecute(Server * self){
         free(buffer);
         buffer = NULL;
 
-        if (socketAccept(&self->socket, &self->peer)) {
+        if (socketAccept(&self->socket, &peer)) {
             return STATE_CONNECTING_TO_CLIENT_ERROR;
         }
 
@@ -94,15 +95,20 @@ ServerState serverExecute(Server * self){
             if ((packet_size = _serverPackInformation(
                     &self->hanged, &packet)) == -1) {
                 free(packet);
+                socketUnInit(&peer);
                 return STATE_PACKING_INFO_ERROR;
             }
-            if (socketSend(&self->peer, packet, packet_size) == -1){
+            if (socketSend(&peer, packet, packet_size) == -1){
                 free(packet);
+                socketUnInit(&peer);
                 return STATE_SENDING_PACKET_ERROR;
             }
             free(packet);
-            if (socketReceive(&self->peer, &new_letter, 1) == -1)
+
+            if (socketReceive(&peer, &new_letter, 1) != 1) {
+                socketUnInit(&peer);
                 return STATE_RECEIVING_LETTER_ERROR;
+            }
             hangedTryLetter(&self->hanged, new_letter);
         }
 
@@ -112,13 +118,14 @@ ServerState serverExecute(Server * self){
             return STATE_PACKING_INFO_ERROR;
         }
 
-        if (socketSend(&self->peer, packet, packet_size) == -1) {
+        if (socketSend(&peer, packet, packet_size) == -1) {
             free(packet);
+            socketUnInit(&peer);
             return STATE_SENDING_PACKET_ERROR;
         }
         free(packet);
 
-        socketUnInit(&self->peer);
+        socketUnInit(&peer);
     }
 
     _serverPrintFinalMessage(self);
@@ -127,7 +134,6 @@ ServerState serverExecute(Server * self){
 
 void serverUnInit(Server * self){
     socketUnInit(&self->socket);
-    socketUnInit(&self->peer);
     hangedUnInit(&self->hanged);
     fileReaderUnInit(&self->file_reader);
 }
