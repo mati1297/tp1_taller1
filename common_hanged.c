@@ -71,7 +71,7 @@ uint8_t hangedAddWord(Hanged * self, char * word) {
     if (!(self->known_word = malloc(word_size + 1)))
         return 1;
     memset(self->word, 0, word_size + 1);
-    memset(self->word, 0, word_size + 1);
+    memset(self->known_word, 0, word_size + 1);
     strncpy(self->word, word, word_size + 1);
     memset(self->known_word, UNKNOWN_CHARACTER, word_size);
 
