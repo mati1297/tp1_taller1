@@ -22,15 +22,19 @@ static uint16_t _clientUnpackInformationHeader(char * package,
     return string_length;
 }
 
-static void _clientUnpackInformationWord(char * package,
-                                         char * buffer, size_t size){
-    memset(buffer, 0, size);
-    strncpy(buffer, package, size);
-    buffer[size] = 0;
+static uint8_t _clientUnpackInformationWord(char * package,
+                                         char ** buffer, size_t size){
+    if (!(*buffer = malloc(size + 1)))
+        return 1;
+    memset(*buffer, 0, size + 1);
+    strncpy(*buffer, package, size + 1);
+    (*buffer)[size] = 0;
+    return 0;
 }
 
 static uint8_t _clientReceiveAndUnpackPacket(Client * self, HangedState * state,
-                                             uint8_t * attempts, char * buffer){
+                                             uint8_t * attempts,
+                                             char ** buffer){
     char packet[MAX_WORD_LENGTH  + INFORMATION_PACK_HEADER_SIZE];
     memset(packet, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
 
@@ -43,7 +47,8 @@ static uint8_t _clientReceiveAndUnpackPacket(Client * self, HangedState * state,
     if (socketReceive(&self->socket, packet, size_word) < 0)
         return 1;
 
-    _clientUnpackInformationWord(packet, buffer, size_word);
+    if (_clientUnpackInformationWord(packet, buffer, size_word))
+        return 1;
     return 0;
 }
 
@@ -73,16 +78,19 @@ ClientState clientConnect(Client * self, char * host, char * port){
 }
 
 ClientState clientExecute(Client * self){
-    char buffer_word[MAX_WORD_LENGTH];
+    char * buffer_word;
     HangedState game_state = STATE_IN_PROGRESS;
     uint8_t attempts;
 
     // Se lee e imprime el primer paquete
     if (_clientReceiveAndUnpackPacket(self, &game_state,
-                                      &attempts, buffer_word))
+                                      &attempts, &buffer_word))
         return STATE_RECEIVING_PACKET_ERROR;
 
     _clientPrintProgressMessage(attempts, buffer_word);
+
+    free(buffer_word);
+    buffer_word = NULL;
 
     char * buffer_letters = NULL;
     size_t buffer_letters_size = 0;
@@ -99,7 +107,7 @@ ClientState clientExecute(Client * self){
         for (int i = 0; i < read; i++){
             //Envio la letra
             if (buffer_letters[i] < 'a' || buffer_letters[i] > 'z') {
-                printf("%s", MSG_ERROR_INVALID_LETTER);
+                printf("%s\n", MSG_ERROR_INVALID_LETTER);
                 continue;
             }
 
@@ -109,8 +117,13 @@ ClientState clientExecute(Client * self){
                 return STATE_SENDING_LETTER_ERROR;
             }
 
+            free(buffer_word);
+            buffer_word = NULL;
+
             if (_clientReceiveAndUnpackPacket(self, &game_state,
-                                              &attempts, buffer_word)) {
+                                              &attempts, &buffer_word)) {
+                free(buffer_word);
+                buffer_word = NULL;
                 free(buffer_letters);
                 buffer_letters = NULL;
                 return STATE_RECEIVING_PACKET_ERROR;
@@ -122,9 +135,11 @@ ClientState clientExecute(Client * self){
                 break;
         }
     }
+    _clientPrintFinalMessage(game_state, buffer_word);
+    free(buffer_word);
+    buffer_word = NULL;
     free(buffer_letters);
     buffer_letters = NULL;
-    _clientPrintFinalMessage(game_state, buffer_word);
 
     return STATE_SUCCESS;
 }

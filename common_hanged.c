@@ -35,19 +35,45 @@ void hangedInit(Hanged * self, uint8_t attempts){
     self->state = STATE_INACTIVE;
     self->victories = 0;
     self->defeats = 0;
+    self->word = NULL;
+    self->known_word = NULL;
+}
+
+void hangedUnInit(Hanged * self){
+    if (self->word) {
+        free(self->word);
+        self->word = NULL;
+    }
+    if (self->known_word){
+        free(self->known_word);
+        self->known_word = NULL;
+    }
 }
 
 uint8_t hangedAddWord(Hanged * self, char * word) {
-    if (strlen(word) > MAX_WORD_LENGTH)
+    size_t word_size = strlen(word);
+    if (word_size > MAX_WORD_LENGTH)
         return 1;
     for (int i = 0; i < strlen(word); i++) {
         if (word[i] < 'a' || word[i] > 'z')
             return 1;
     }
-    memset(self->word, 0, MAX_WORD_LENGTH);
-    memset(self->known_word, 0, MAX_WORD_LENGTH);
-    strncpy(self->word, word, MAX_WORD_LENGTH);
-    memset(self->known_word, UNKNOWN_CHARACTER, strlen(self->word));
+    if (self->word){
+        free(self->word);
+        self->word = NULL;
+    }
+    if (self->known_word){
+        free(self->known_word);
+        self->known_word = NULL;
+    }
+    if (!(self->word = malloc(word_size + 1)))
+        return 1;
+    if (!(self->known_word = malloc(word_size + 1)))
+        return 1;
+    memset(self->word, 0, word_size + 1);
+    memset(self->word, 0, word_size + 1);
+    strncpy(self->word, word, word_size + 1);
+    memset(self->known_word, UNKNOWN_CHARACTER, word_size);
 
     self->attempts_count = self->attempts;
     self->state = STATE_IN_PROGRESS;
@@ -88,11 +114,8 @@ uint8_t hangedGetAttemptsCount(Hanged * self){
     return self->attempts_count;
 }
 
-uint8_t hangedGetKnownWord(Hanged * self, char * buffer, size_t size){
-    if (size < (strlen(self->known_word) + 1))
-        return 1;
-    strncpy(buffer, self->known_word, size);
-    return 0;
+const char * hangedGetKnownWord(Hanged * self){
+    return self->known_word;
 }
 
 
