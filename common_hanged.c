@@ -102,7 +102,7 @@ uint8_t hangedTryLetter(Hanged * self, char letter){
         self->attempts_count--;
     // Si la palabra conocida y la real son iguales, el jugador
     // gana. En caso contrario y si no quedan mas intentos,
-    // jugador pierde.
+    // jugador pierde. Si el jugador pierde, se revela la palabra.
     if (!strcmp(self->word, self->known_word)) {
         self->state = STATE_PLAYER_WINS;
         self->victories++;

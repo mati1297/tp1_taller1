@@ -19,11 +19,14 @@
 #define MSG_HANGED_YOU_WIN "Ganaste!!"
 #define MSG_HANGED_YOU_LOSE "Perdiste! La palabra secreta era"
 
+// Tipo Client, permite inicializar y ejecutar un cliente
+// del juego ahorcado.
 typedef struct {
     Socket socket;
     FileReader file_reader;
 } Client;
 
+// Tipo ClientState, permite conocer el estado del Client
 typedef enum{
     STATE_SUCCESS,
     STATE_CONNECTION_ERROR,
@@ -32,10 +35,26 @@ typedef enum{
     STATE_SENDING_LETTER_ERROR
 } ClientState;
 
+/* Inicializa la instancia self,.
+ * Pre: self debe apuntar a una direccion de memoria valida. */
 void clientInit(Client * self);
+
+/* Conecta el cliente a un server.
+ * Pre: self debe apuntar a unad direccion de memoria valida.
+ *      host debe apuntar a un array de chars con un host valido.
+ *      port debe apuntar a un array de chars con un numero de puerto
+ *      o un nombre de servicio valido.  */
 ClientState clientConnect(Client * self, char * host, char * port);
+
+/* Ejecuta el cliente.
+ * Pre: self debe apuntar a una direccion de memoria valida.  */
 ClientState clientExecute(Client * self);
+
+/* Desinicializa el cliente.
+ * Pre: self debe apuntar a una direccion de memoria valida. */
 void clientUnInit(Client * self);
+
+/* Imprime el error correspondiente al state por stderr. */
 void clientPrintError(ClientState state);
 
 #endif //TP1_TALLER1_CLIENT_H

@@ -70,10 +70,14 @@ static uint8_t _serverReadAndAddWord(Server * self){
                                       &buffer, &buffer_size);
     // Si la lectura fallo, se devuelve un estado de error.
     if (read == -1) {
+        free(buffer);
+        buffer = NULL;
         return 2;
     }
     // Si no se leyo nada en la linea, se sigue con la siguiente.
     if (read == 0){
+        free(buffer);
+        buffer = NULL;
         return 1;
     }
     // Si hay mas cantidad de caracteres que lo que tiene mayor tamanio
@@ -140,7 +144,6 @@ ServerState serverInit(Server * self, char * filename,
 
 ServerState serverExecute(Server * self){
     char new_letter;
-
     Socket peer;
 
     // Se itera a traves de las lineas del archivo de entrada.
