@@ -39,9 +39,9 @@ uint8_t hangedTryLetter(Hanged * self, char letter);
 HangedState hangedGetState(Hanged * self);
 size_t hangedGetVictories(Hanged * self);
 size_t hangedGetDefeats(Hanged * self);
-ssize_t hangedPackInformation(Hanged * self, char * buffer, size_t size);
-uint16_t hangedUnpackInformationHeader(char * package, HangedState * state,
-                                       uint8_t * attempts);
-void hangedUnpackInformationWord(char * package, char * buffer, size_t size);
+uint8_t hangedGetAttemptsCount(Hanged * self);
+uint8_t hangedGetKnownWord(Hanged * self, char * buffer, size_t size);
+
+
 
 #endif //TP1_TALLER1_COMMON_HANGED_H

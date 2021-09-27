@@ -3,6 +3,32 @@
 #include "common_hanged.h"
 #include "client.h"
 
+static uint16_t _clientUnpackInformationHeader(char * package,
+                                               HangedState * state,
+                                               uint8_t * attempts){
+    *attempts = (uint16_t) package[0] & MASK_ATTEMPTS;
+    char _state = (char) (package[0] & MASK_STATE);
+    if (_state){
+        if (*attempts > 0)
+            *state = STATE_PLAYER_WINS;
+        else
+            *state = STATE_PLAYER_LOSES;
+    } else {
+        *state = STATE_IN_PROGRESS;
+    }
+    uint16_t string_length = 0;
+    memcpy((char *) &string_length, &package[1], sizeof(uint16_t));
+    string_length = ntohs(string_length);
+    return string_length;
+}
+
+static void _clientUnpackInformationWord(char * package,
+                                         char * buffer, size_t size){
+    memset(buffer, 0, size);
+    strncpy(buffer, package, size);
+    buffer[size] = 0;
+}
+
 static uint8_t _clientReceiveAndUnpackPacket(Client * self, HangedState * state,
                                              uint8_t * attempts, char * buffer){
     char packet[MAX_WORD_LENGTH  + INFORMATION_PACK_HEADER_SIZE];
@@ -11,12 +37,13 @@ static uint8_t _clientReceiveAndUnpackPacket(Client * self, HangedState * state,
     if (socketReceive(&self->socket, packet, INFORMATION_PACK_HEADER_SIZE) < 0)
         return 1;
 
-    uint16_t size_word = hangedUnpackInformationHeader(packet, state, attempts);
+    uint16_t size_word = _clientUnpackInformationHeader(packet, state,
+                                                        attempts);
 
     if (socketReceive(&self->socket, packet, size_word) < 0)
         return 1;
 
-    hangedUnpackInformationWord(packet, buffer, size_word);
+    _clientUnpackInformationWord(packet, buffer, size_word);
     return 0;
 }
 

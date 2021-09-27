@@ -4,7 +4,26 @@
 #include "common_hanged.h"
 #include "server.h"
 
-void _serverPrintFinalMessage(Server * self){
+static ssize_t _serverPackInformation(Hanged * hanged, char * package,
+                                      size_t size) {
+    char known_word[MAX_WORD_LENGTH + 1];
+    hangedGetKnownWord(hanged, known_word, MAX_WORD_LENGTH + 1);
+    uint16_t word_size = strlen(known_word);
+    size_t requiredSize = word_size + INFORMATION_PACK_HEADER_SIZE;
+    if (size < requiredSize + 1)
+        return -1;
+    package[0] = (char) (hangedGetAttemptsCount(hanged)) & MASK_ATTEMPTS;
+    if (hangedGetState(hanged) == STATE_IN_PROGRESS)
+        package[0] &= MASK_STATE_IN_PROGRESS;
+    else
+        package[0] |= MASK_STATE_FINISHED;
+    uint16_t word_size_big_endian = htons(word_size);
+    memcpy(&package[1], (const char *) &word_size_big_endian, sizeof(uint16_t));
+    strncpy(&package[3], known_word, size - INFORMATION_PACK_HEADER_SIZE + 1);
+    return INFORMATION_PACK_HEADER_SIZE + word_size;
+}
+
+void _serverPrintFinalMessage(Server * self) {
     printf("%s:\n", MSG_HANGED_SUMMARY);
     printf("\t%s: %zu\n", MSG_HANGED_VICTORIES,
            hangedGetVictories(&self->hanged));
@@ -36,7 +55,7 @@ ServerState serverInit(Server * self, char * filename,
 ServerState serverExecute(Server * self){
     char * buffer = NULL;
     size_t buffer_size = 0;
-    char package[MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE];
+    char package[MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE + 1];
     char new_letter;
     int packet_size;
 
@@ -44,7 +63,6 @@ ServerState serverExecute(Server * self){
     while (!fileReaderEOF(&self->file_reader)){
         ssize_t read = fileReaderReadLine(&self->file_reader,
                                           &buffer, &buffer_size);
-
         if (read == -1) {
             return STATE_READING_WORD_ERROR;
         }
@@ -56,20 +74,16 @@ ServerState serverExecute(Server * self){
             buffer = NULL;
             continue;
         }
-
         if (buffer[0] == 0){
             free(buffer);
             buffer = NULL;
             continue;
         }
-
         if (hangedAddWord(&self->hanged, buffer)) {
             free(buffer);
             buffer = NULL;
             continue;
         }
-
-
         free(buffer);
         buffer = NULL;
 
@@ -79,7 +93,7 @@ ServerState serverExecute(Server * self){
 
         while (hangedGetState(&self->hanged) == STATE_IN_PROGRESS) {
             memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
-            if ((packet_size = hangedPackInformation(
+            if ((packet_size = _serverPackInformation(
                     &self->hanged, package,
                     MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) == -1) {
                 return STATE_PACKING_INFO_ERROR;
@@ -90,12 +104,11 @@ ServerState serverExecute(Server * self){
 
             if (socketReceive(&self->peer, &new_letter, 1) == -1)
                 return STATE_RECEIVING_LETTER_ERROR;
-
             hangedTryLetter(&self->hanged, new_letter);
         }
 
         memset(package, 0, MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE);
-        if ((packet_size = hangedPackInformation(
+        if ((packet_size = _serverPackInformation(
                 &self->hanged, package,
                 MAX_WORD_LENGTH + INFORMATION_PACK_HEADER_SIZE)) < 0)
             return STATE_PACKING_INFO_ERROR;
