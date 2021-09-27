@@ -8,7 +8,7 @@ static ssize_t _serverPackInformation(Hanged * hanged, char ** packet) {
     const char * known_word = hangedGetKnownWord(hanged);
     uint16_t word_size = strlen(known_word);
     size_t required_size = word_size + INFORMATION_PACK_HEADER_SIZE;
-    if (!(*packet = malloc(required_size)))
+    if (!(*packet = malloc(required_size + 1)))
         return -1;
     (*packet)[0] = (char) (hangedGetAttemptsCount(hanged)) & MASK_ATTEMPTS;
     if (hangedGetState(hanged) == STATE_IN_PROGRESS)
