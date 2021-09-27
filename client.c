@@ -135,7 +135,7 @@ ClientState clientExecute(Client * self){
             // Se libera al principio si es que esta allocado ya
             // que cuando termina el ciclo no debe ser liberado
             // para poder imprimir el mensaje final.
-            if(buffer_word){
+            if (buffer_word){
                 free(buffer_word);
                 buffer_word = NULL;
             }
