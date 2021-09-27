@@ -5,16 +5,21 @@
 #include <netinet/in.h> //borrar luego
 #include "common_hanged.h"
 
+/* Chequea si la letra se encuentra en la palabra y si lo esta, reemplaza
+ * esa palabra en la palabra conocida. */
 static bool _hangedCheckLetterAndReplaceIfNecessary(Hanged * self, char letter){
     bool is_there = false;
+    // Se chequea si la letra se encuentra en la palabra.
     for (int i = 0; i < strlen(self->word); i++){
         if (self->word[i] == letter){
             is_there = true;
             break;
         }
     }
+    // Si no esta se retorna falso.
     if (!is_there)
         return false;
+    // Si esta se reemplaza todas las veces que haga falta.
     for (int i = 0; i < strlen(self->word); i++){
         if (self->word[i] == letter)
             self->known_word[i] = letter;
@@ -22,17 +27,8 @@ static bool _hangedCheckLetterAndReplaceIfNecessary(Hanged * self, char letter){
     return true;
 }
 
-static bool _hangedCheckPlayerWin(Hanged * self){
-    for (int i = 0; i < strlen(self->known_word); i++){
-        if (self->known_word[i] == UNKNOWN_CHARACTER)
-            return false;
-    }
-    return true;
-}
-
 void hangedInit(Hanged * self, uint8_t attempts){
     self->attempts = (attempts < MAX_ATTEMPTS) ? attempts : MAX_ATTEMPTS;
-    self->state = STATE_INACTIVE;
     self->victories = 0;
     self->defeats = 0;
     self->word = NULL;
@@ -54,10 +50,13 @@ uint8_t hangedAddWord(Hanged * self, char * word) {
     size_t word_size = strlen(word);
     if (word_size > MAX_WORD_LENGTH)
         return 1;
+    // Se chequea que la palabra no tenca caracteres invalidos.
     for (int i = 0; i < strlen(word); i++) {
         if (word[i] < 'a' || word[i] > 'z')
             return 1;
     }
+
+    // Si habia una palabra se libera su memoria.
     if (self->word){
         free(self->word);
         self->word = NULL;
@@ -66,28 +65,45 @@ uint8_t hangedAddWord(Hanged * self, char * word) {
         free(self->known_word);
         self->known_word = NULL;
     }
+
+    // Se pide memoria para la nueva palabra.
     if (!(self->word = malloc(word_size + 1)))
         return 1;
-    if (!(self->known_word = malloc(word_size + 1)))
+    if (!(self->known_word = malloc(word_size + 1))) {
+        free(self->word);
+        self->word = NULL;
         return 1;
+    }
+
+    // Se setea a 0 la memoria pedida
     memset(self->word, 0, word_size + 1);
     memset(self->known_word, 0, word_size + 1);
+    // Se copia la palabra y se setea la palabra desconocida
+    // con el caracter que indica desconocido.
     strncpy(self->word, word, word_size + 1);
     memset(self->known_word, UNKNOWN_CHARACTER, word_size);
 
+    // Se resetean los intentos y se pasa a estado en progreso.
     self->attempts_count = self->attempts;
     self->state = STATE_IN_PROGRESS;
     return 0;
 }
 
 uint8_t hangedTryLetter(Hanged * self, char letter){
+    // Si la letra es invalida se ignora.
     if (letter < 'a' || letter > 'z')
-        return 1;
+        return 0;
+    // Si el juego no esta en progreso se deuvelve un error.
     if (self->state != STATE_IN_PROGRESS)
         return 1;
+    // Se chequea si la letra se encuentra y se reemplaza
+    // de ser necesario.
     if (!_hangedCheckLetterAndReplaceIfNecessary(self, letter))
         self->attempts_count--;
-    if (_hangedCheckPlayerWin(self)) {
+    // Si la palabra conocida y la real son iguales, el jugador
+    // gana. En caso contrario y si no quedan mas intentos,
+    // jugador pierde.
+    if (!strcmp(self->word, self->known_word)) {
         self->state = STATE_PLAYER_WINS;
         self->victories++;
     } else if (!self->attempts_count) {

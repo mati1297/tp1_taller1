@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+// Tipo FileReader, permite leer desde un archivo.
 typedef struct {
     FILE * fds;
 } FileReader;
