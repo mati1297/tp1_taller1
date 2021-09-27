@@ -59,6 +59,8 @@ static uint8_t _serverSendPacket(Server * self, Socket * peer){
     return 0;
 }
 
+/*  Realiza la lectura desde el file reader, valida la lectura
+ * y la palabra, y la carga en el juego.*/
 static uint8_t _serverReadAndAddWord(Server * self){
     char * buffer = NULL;
     size_t buffer_size = 0;
