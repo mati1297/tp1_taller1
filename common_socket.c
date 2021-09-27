@@ -20,8 +20,10 @@ static uint8_t _socketGetAddressInfo(struct addrinfo ** result,
     if (host == NULL)
         hints.ai_flags = AI_PASSIVE;
     int s = getaddrinfo(host, port, &hints, result);
-    if (s)
+    if (s) {
+        freeaddrinfo(*result);
         return 1;
+    }
     return 0;
 }
 
@@ -45,8 +47,11 @@ uint8_t socketConnect(Socket * self, char * host, char * port){
 
     // Se crea e inicializa al estructura de direccion.
     if (_socketGetAddressInfo(&result, host, port)) {
+        freeaddrinfo(result);
         return 1;
     }
+
+    self->fd = 0;
     // Se itera a traves de los resultados para encontrar a cual
     // se puede conectar.
     for (ptr = result; ptr; ptr = ptr->ai_next){
@@ -62,8 +67,9 @@ uint8_t socketConnect(Socket * self, char * host, char * port){
             }
         }
     }
+
     // Se libera el puntero a la estructura.
-    freeaddrinfo(ptr);
+    freeaddrinfo(result);
     // Si no se guardo ningun file descriptor es que no se pudo
     // conectar a ningun lado, por lo que la funcion fallo.
     if (!self->fd)
@@ -72,6 +78,7 @@ uint8_t socketConnect(Socket * self, char * host, char * port){
     // Se setea el socket para que pueda reutilizar la direccion.
     int optval = 1;
     setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
+    printf("Hola\n");
     return 0;
 }
 
