@@ -33,7 +33,7 @@ Se muestran a continuación algunos diagramas del funcionamiento del programa. E
     <img src="images/class_diagram.png"alt="class_diagram"/>
 </p>
 
-En los dos siguientes se pueden ver diagramas de secuencia de la ejecución de ```Server```y de ```Client``` respectivamente, mostrando su interacción con los demás TDA.
+En las dos figuras siguientes se pueden ver diagramas de secuencia de la ejecución de ```Server```y de ```Client``` respectivamente, mostrando su interacción con los demás TDA.
 
 <p align=center>
     <img src="images/server_sequence.png"alt="server_sequence"/>
