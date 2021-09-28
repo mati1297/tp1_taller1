@@ -54,10 +54,12 @@ static uint8_t _serverSendPacket(Server * self, Socket * peer){
     // Se envia la informacion
     if (socketSend(peer, packet, packet_size) == -1){
         free(packet);
+        packet = NULL;
         return 1;
     }
     // Se libera la memoria usada por el paquete.
     free(packet);
+    packet = NULL;
     return 0;
 }
 
