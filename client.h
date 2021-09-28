@@ -4,6 +4,10 @@
 #include "common_socket.h"
 #include "common_hanged.h"
 
+#define INFORMATION_PACK_HEADER_SIZE 3
+#define MASK_ATTEMPTS 127
+#define MASK_STATE 128
+
 #define MSG_ERROR_ARGS_AMOUNT "La cantidad de argumentos debe ser"
 #define MSG_ERROR_INVALID_PORT_NUMBER "Numero de puerto invalido"
 #define MSG_ERROR_SERVER_CONNECTION "Error al conectar al server"
@@ -39,16 +43,12 @@ typedef enum{
  * Pre: self debe apuntar a una direccion de memoria valida. */
 void clientInit(Client * self);
 
-/* Conecta el cliente a un server.
+/* Conecta y ejecuta el cliente.
  * Pre: self debe apuntar a unad direccion de memoria valida.
  *      host debe apuntar a un array de chars con un host valido.
  *      port debe apuntar a un array de chars con un numero de puerto
  *      o un nombre de servicio valido.  */
-ClientState clientConnect(Client * self, char * host, char * port);
-
-/* Ejecuta el cliente.
- * Pre: self debe apuntar a una direccion de memoria valida.  */
-ClientState clientExecute(Client * self);
+ClientState clientExecute(Client * self, char * host, char * port);
 
 /* Desinicializa el cliente.
  * Pre: self debe apuntar a una direccion de memoria valida. */

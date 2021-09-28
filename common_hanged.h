@@ -9,13 +9,7 @@
 
 #define UNKNOWN_CHARACTER '_'
 #define MAX_ATTEMPTS 127
-
 #define MAX_WORD_LENGTH 65535
-#define INFORMATION_PACK_HEADER_SIZE 3
-#define MASK_ATTEMPTS 127
-#define MASK_STATE_IN_PROGRESS 127
-#define MASK_STATE_FINISHED 128
-#define MASK_STATE 128
 
 // Tipo HangedState, permite conocer el estado del TDA Hanged.
 typedef enum{

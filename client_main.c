@@ -19,14 +19,8 @@ int main(int argc, char * argv[]) {
 
     clientInit(&client);
 
-    if ((client_state = clientConnect(&client, argv[1],
+    if ((client_state = clientExecute(&client, argv[1],
                                       argv[2])) != STATE_SUCCESS){
-        clientPrintError(client_state);
-        clientUnInit(&client);
-        return EXIT_FAILURE;
-    }
-
-    if ((client_state = clientExecute(&client)) != STATE_SUCCESS){
         clientPrintError(client_state);
         clientUnInit(&client);
         return EXIT_FAILURE;

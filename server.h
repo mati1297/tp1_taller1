@@ -6,6 +6,10 @@
 #include "common_file_reader.h"
 #include "common_hanged.h"
 
+#define INFORMATION_PACK_HEADER_SIZE 3
+#define MASK_ATTEMPTS 127
+#define MASK_STATE 128
+
 #define MSG_ERROR_OPEN_FILE "Error al abrir el archivo"
 #define MSG_ERROR_LISTENING_PORT "Error al poner el puerto en escucha"
 #define MSG_ERROR_CONNECTING_CLIENT "Error al conectar con el cliente"

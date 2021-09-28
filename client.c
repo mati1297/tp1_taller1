@@ -92,16 +92,16 @@ void clientInit(Client * self){
     fileReaderInit(&self->file_reader, stdin);
 }
 
-ClientState clientConnect(Client * self, char * host, char * port){
-    if (socketConnect(&self->socket, host, port))
-        return STATE_CONNECTION_ERROR;
-    return STATE_SUCCESS;
-}
-
-ClientState clientExecute(Client * self){
+ClientState clientExecute(Client * self, char * host, char * port){
+    // Se utiliza el heap para leer la palabra recibida, ya que puede
+    // tener un tamaño de hasta 65535, por lo que no seria conveniente
+    // guardarlo en el stack.
     char * buffer_word;
     HangedState game_state = STATE_IN_PROGRESS;
     uint8_t attempts;
+
+    if (socketConnect(&self->socket, host, port))
+        return STATE_CONNECTION_ERROR;
 
     // Se lee e imprime el primer paquete
     if (_clientReceiveAndUnpackPacket(self, &game_state,

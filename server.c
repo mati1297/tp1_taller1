@@ -14,7 +14,9 @@ static ssize_t _serverPackInformation(Server * self, char ** packet) {
     uint16_t word_size = strlen(known_word);
     // Se calcula el tamanio que se necesita.
     size_t required_size = word_size + INFORMATION_PACK_HEADER_SIZE;
-    // Se pide memoria.
+    // Se pide memoria. Se utiliza el heap porque la palabra puede
+    // ser de hasta 65535 bytes, por lo que no seria conveniente
+    // guardarlo en el stack.
     if (!(*packet = malloc(required_size + 1)))
         return -1;
     // Se guarda la cantidad de intentos (los ultimos 7 bits).
@@ -23,9 +25,9 @@ static ssize_t _serverPackInformation(Server * self, char ** packet) {
     // Se setea el primer bit del primer byte como 0 o 1 dependiendo
     // del estado del juego.
     if (hangedGetState(&self->hanged) == STATE_IN_PROGRESS)
-        (*packet)[0] &= MASK_STATE_IN_PROGRESS;
+        (*packet)[0] &= ~MASK_STATE;
     else
-        (*packet)[0] |= MASK_STATE_FINISHED;
+        (*packet)[0] |= MASK_STATE;
     // Se guarda el tamanio de la palabra en formato big endian.
     uint16_t word_size_big_endian = htons(word_size);
     // Se guardan el tamanio de la palabra y luego la palabra en

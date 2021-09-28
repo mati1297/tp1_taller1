@@ -9,14 +9,14 @@
 
 // Tipo FileReader, permite leer desde un archivo.
 typedef struct {
-    FILE * fds;
+    FILE * file;
 } FileReader;
 
-/* Inicializa la instancia self para ser utilizada a partir de un file
- * descriptor. Retorna 1 en caso de error.
+/* Inicializa la instancia self para ser utilizada a partir de una
+ * estructura FILE. Retorna 1 en caso de error.
  * Pre: self debe apuntar a una direccion de memoria valida.
- *      fds es un archivo valido abierto para lectura.  */
-uint16_t fileReaderInit(FileReader * self, FILE * fds);
+ *      file es un puntero a una estrura FILE valida.  */
+uint16_t fileReaderInit(FileReader * self, FILE * file);
 
 /* Inicializa la instancia self para ser utilizada a partir de un
  * array de chars con el nombre del archivo. Retorna 1 en caso de

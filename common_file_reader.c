@@ -6,32 +6,32 @@
 #include <errno.h>
 #include "common_file_reader.h"
 
-uint16_t fileReaderInit(FileReader * self, FILE * fds){
-    if (!fds)
+uint16_t fileReaderInit(FileReader * self, FILE * file){
+    if (!file)
         return 1;
-    self->fds = fds;
+    self->file = file;
     return 0;
 }
 
 uint16_t fileReaderInitFromName(FileReader * self, char * name){
-    if (!(self->fds = fopen(name, "r")))
+    if (!(self->file = fopen(name, "r")))
         return 1;
     return 0;
 }
 
 void fileReaderUnInit(FileReader * self){
-    if (self->fds && self->fds != stdin)
-        fclose(self->fds);
+    if (self->file && self->file != stdin)
+        fclose(self->file);
 }
 
 bool fileReaderEOF(FileReader * self){
-    return feof(self->fds);
+    return feof(self->file);
 }
 
 ssize_t fileReaderReadLine(FileReader * self, char ** output, size_t * size){
     ssize_t read;
     // Se usa getline() para leer la linea de entrada.
-    read = getline(output, size, self->fds);
+    read = getline(output, size, self->file);
     // En caso de fallar la getline se libera la memoria  y se apunta
     // el puntero a null.
     if (read == -1) {

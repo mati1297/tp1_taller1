@@ -27,6 +27,23 @@ static bool _hangedCheckLetterAndReplaceIfNecessary(Hanged * self, char letter){
     return true;
 }
 
+/* Chequea el estado de la palabra conocida y a partir de alli
+ * cambia el estado segun corresponda y actualiza los contadores
+ * de victorias y derrotas */
+static void _hangedUpdateState(Hanged * self){
+    // Si la palabra conocida y la real son iguales, el jugador
+    // gana. En caso contrario y si no quedan mas intentos,
+    // jugador pierde. Si el jugador pierde, se revela la palabra.
+    if (!strcmp(self->word, self->known_word)) {
+        self->state = STATE_PLAYER_WINS;
+        self->victories++;
+    } else if (!self->attempts_count) {
+        self->state = STATE_PLAYER_LOSES;
+        strncpy(self->known_word, self->word, strlen(self->known_word));
+        self->defeats++;
+    }
+}
+
 void hangedInit(Hanged * self, uint8_t attempts){
     self->attempts = (attempts < MAX_ATTEMPTS) ? attempts : MAX_ATTEMPTS;
     self->victories = 0;
@@ -66,7 +83,9 @@ uint8_t hangedAddWord(Hanged * self, char * word) {
         self->known_word = NULL;
     }
 
-    // Se pide memoria para la nueva palabra.
+    // Se pide memoria para la nueva palabra. Se utiliza el heap
+    // porque la palabra puede ser de hasta 65535 bytes, por
+    // lo que no seria conveniente guardarlo en el stack.
     if (!(self->word = malloc(word_size + 1)))
         return 1;
     if (!(self->known_word = malloc(word_size + 1))) {
@@ -100,17 +119,7 @@ uint8_t hangedTryLetter(Hanged * self, char letter){
     // de ser necesario.
     if (!_hangedCheckLetterAndReplaceIfNecessary(self, letter))
         self->attempts_count--;
-    // Si la palabra conocida y la real son iguales, el jugador
-    // gana. En caso contrario y si no quedan mas intentos,
-    // jugador pierde. Si el jugador pierde, se revela la palabra.
-    if (!strcmp(self->word, self->known_word)) {
-        self->state = STATE_PLAYER_WINS;
-        self->victories++;
-    } else if (!self->attempts_count) {
-        self->state = STATE_PLAYER_LOSES;
-        strncpy(self->known_word, self->word, strlen(self->known_word));
-        self->defeats++;
-    }
+    _hangedUpdateState(self);
     return 0;
 }
 
