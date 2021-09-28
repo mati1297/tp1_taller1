@@ -28,7 +28,7 @@ static uint8_t _socketGetAddressInfo(struct addrinfo ** result,
 }
 
 void socketInit(Socket * self){
-    self->fd = 0;
+    self->fd = INVALID_FILE_DESCRIPTOR;
 }
 
 void socketInitFromFd(Socket * self, int fd){
@@ -36,9 +36,9 @@ void socketInitFromFd(Socket * self, int fd){
 }
 
 void socketUnInit(Socket * self){
-    if (self->fd){
+    if (self->fd != INVALID_FILE_DESCRIPTOR){
         close(self->fd);
-        self->fd = 0;
+        self->fd = INVALID_FILE_DESCRIPTOR;
     }
 }
 
@@ -51,7 +51,6 @@ uint8_t socketConnect(Socket * self, char * host, char * port){
         return 1;
     }
 
-    self->fd = 0;
     // Se itera a traves de los resultados para encontrar a cual
     // se puede conectar.
     for (ptr = result; ptr; ptr = ptr->ai_next){
@@ -72,7 +71,7 @@ uint8_t socketConnect(Socket * self, char * host, char * port){
     freeaddrinfo(result);
     // Si no se guardo ningun file descriptor es que no se pudo
     // conectar a ningun lado, por lo que la funcion fallo.
-    if (!self->fd)
+    if (self->fd == INVALID_FILE_DESCRIPTOR)
         return 1;
 
     // Se setea el socket para que pueda reutilizar la direccion.
@@ -101,7 +100,7 @@ uint8_t socketBindAndListen(Socket * self, char * port){
     if (bind(self->fd, result->ai_addr, result->ai_addrlen)) {
         freeaddrinfo(result);
         close(self->fd);
-        self->fd = 0;
+        self->fd = INVALID_FILE_DESCRIPTOR;
         return 1;
     }
     // Se libera el puntero a la estructura.
@@ -118,7 +117,7 @@ uint8_t socketAccept(Socket * self, Socket * peer){
     // Se acepta una conexion y se guarda el file descriptor
     // del peer.
     int fd_peer = accept(self->fd, NULL, NULL);
-    if (fd_peer < 0)
+    if (fd_peer == -1)
         return 1;
     // Se inicializa peer con el file descriptor obtenido de
     // la funcion accept.

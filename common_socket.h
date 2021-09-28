@@ -13,6 +13,7 @@
 #include <netdb.h>
 
 #define SERVER_PENDING_CONNECTIONS 8
+#define INVALID_FILE_DESCRIPTOR -1
 
 // Tipo Socket, permite enviar y recibir datos a traves de
 // sockets.
