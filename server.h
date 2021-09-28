@@ -50,15 +50,15 @@ typedef enum{
  * Pre: self debe apuntar a una direccion de memoria valida.
  *      filename debe apuntar a un array de chars con un nombre
  *      de archivo valido.
- *      port debe apuntar a un array de chars con un numero de puerto
- *      o un nombre de servicio valido.
  *      attempts debe apuntar a un array de cahrs con un numero de
  *      intentos valido.  */
 ServerState serverInit(Server * self, char * filename,
                        char * attempts);
 
 /* Ejecuta el server.
- * Pre: self debe apuntar a una direccion de memoria valida.  */
+ * Pre: self debe apuntar a una direccion de memoria valida.
+ * port debe apuntar a un array de chars con un numero de
+ * puerto o un nombre de servicio valido.*/
 ServerState serverExecute(Server * self, char * port);
 
 /* Desinicializa el server.

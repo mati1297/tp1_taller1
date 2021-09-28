@@ -6,7 +6,7 @@
 #include "common_hanged.h"
 
 /* Chequea si la letra se encuentra en la palabra y si lo esta, reemplaza
- * esa palabra en la palabra conocida. */
+ * esa letra en la palabra conocida. */
 static bool _hangedCheckLetterAndReplaceIfNecessary(Hanged * self, char letter){
     bool is_there = false;
     // Se chequea si la letra se encuentra en la palabra.

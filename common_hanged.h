@@ -48,7 +48,7 @@ uint8_t hangedAddWord(Hanged * self, char * word);
 
 /* Prueba la letra letter en el juego, y si es necesario cambia
  * el estado del juego a victoria o derrota. Retorna 0 en caso
- * de exito o 0 en caso contrario.
+ * de exito o 1 en caso contrario.
  * Pre: self debe apuntar a una direccion de memoria valida.
  *      letter debe ser una letra valida (letra minuscula),
  *      sino no se hara nada.  */

@@ -6,14 +6,14 @@
 #include <errno.h>
 #include "common_file_reader.h"
 
-uint16_t fileReaderInit(FileReader * self, FILE * file){
+uint8_t fileReaderInit(FileReader * self, FILE * file){
     if (!file)
         return 1;
     self->file = file;
     return 0;
 }
 
-uint16_t fileReaderInitFromName(FileReader * self, char * name){
+uint8_t fileReaderInitFromName(FileReader * self, char * name){
     if (!(self->file = fopen(name, "r")))
         return 1;
     return 0;

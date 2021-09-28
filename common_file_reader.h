@@ -13,17 +13,17 @@ typedef struct {
 } FileReader;
 
 /* Inicializa la instancia self para ser utilizada a partir de una
- * estructura FILE. Retorna 1 en caso de error.
+ * estructura FILE. Retorna 0 en caso exitoso o 1 en caso de error.
  * Pre: self debe apuntar a una direccion de memoria valida.
  *      file es un puntero a una estrura FILE valida.  */
-uint16_t fileReaderInit(FileReader * self, FILE * file);
+uint8_t fileReaderInit(FileReader * self, FILE * file);
 
 /* Inicializa la instancia self para ser utilizada a partir de un
- * array de chars con el nombre del archivo. Retorna 1 en caso de
- * error.
+ * array de chars con el nombre del archivo. Retorna 0 en caso
+ * exitoso o 1 en caso de error.
  * Pre: self debe apuntar a una direccion de memoria valida.
  *      name debe apuntar a una direccion de memoria valida.  */
-uint16_t fileReaderInitFromName(FileReader * self, char * name);
+uint8_t fileReaderInitFromName(FileReader * self, char * name);
 
 /*  Desinicializa la instancia self. Retorna 1 en caso de error.
  *  Pre: self debe apuntar a una direccion de memoria valida.  */
