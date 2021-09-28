@@ -17,7 +17,7 @@ static ssize_t _serverPackInformation(Server * self, char ** packet) {
     // Se pide memoria. Se utiliza el heap porque la palabra puede
     // ser de hasta 65535 bytes, por lo que no seria conveniente
     // guardarlo en el stack.
-    if (!(*packet = malloc(required_size + 1)))
+    if (!(*packet = realloc(*packet, required_size + 1)))
         return -1;
     // Se guarda la cantidad de intentos (los ultimos 7 bits).
     (*packet)[0] = (char) (hangedGetAttemptsCount(&self->hanged))
@@ -42,7 +42,7 @@ static ssize_t _serverPackInformation(Server * self, char ** packet) {
  * _serverPackInformation y luego la envia a traves del socket
  * peer. */
 static uint8_t _serverSendPacket(Server * self, Socket * peer){
-    char * packet;
+    char * packet = NULL;
     int packet_size;
     // Se empaqueta la informacion
     if ((packet_size = _serverPackInformation(
@@ -119,7 +119,7 @@ static void _serverPrintFinalMessage(Server * self) {
 }
 
 ServerState serverInit(Server * self, char * filename,
-                       char * port, char * attempts){
+                       char * attempts){
     // Se inicializa el file reader con el nombre pasado
     // por parametro.
     if (fileReaderInitFromName(&self->file_reader, filename))
@@ -133,10 +133,8 @@ ServerState serverInit(Server * self, char * filename,
     }
     uint8_t attempts_number = (uint8_t) attempts_;
 
-    // Se inicializa y se pone en escucha el socket.
+    // Se inicializa el socket.
     socketInit(&self->socket);
-    if (socketBindAndListen(&self->socket, port))
-        return STATE_LISTENING_ERROR;
 
     // Se inicializa el juego Hanged.
     hangedInit(&self->hanged, attempts_number);
@@ -144,9 +142,13 @@ ServerState serverInit(Server * self, char * filename,
     return STATE_SUCCESS;
 }
 
-ServerState serverExecute(Server * self){
+ServerState serverExecute(Server * self, char * port){
     char new_letter;
     Socket peer;
+
+    // Se pone el puerto en escucha.
+    if (socketBindAndListen(&self->socket, port))
+        return STATE_LISTENING_ERROR;
 
     // Se itera a traves de las lineas del archivo de entrada.
     while (!fileReaderEOF(&self->file_reader)){

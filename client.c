@@ -54,7 +54,7 @@ static uint8_t _clientReceiveAndUnpackPacket(Client * self, HangedState * state,
 
     // Una vez que se tiene el tamanio de la palabra, se alloca
     // el buffer y se recibe la palabra.
-    if (!(*buffer = malloc(size_word + 1))) {
+    if (!(*buffer = realloc(*buffer, size_word + 1))) {
         return 1;
     }
 
@@ -96,27 +96,24 @@ ClientState clientExecute(Client * self, char * host, char * port){
     // Se utiliza el heap para leer la palabra recibida, ya que puede
     // tener un tamaño de hasta 65535, por lo que no seria conveniente
     // guardarlo en el stack.
-    char * buffer_word;
+    char * buffer_word = NULL;
     HangedState game_state = STATE_IN_PROGRESS;
     uint8_t attempts;
+    char * buffer_letters = NULL;
+    size_t buffer_letters_size = 0;
 
     if (socketConnect(&self->socket, host, port))
         return STATE_CONNECTION_ERROR;
 
     // Se lee e imprime el primer paquete
     if (_clientReceiveAndUnpackPacket(self, &game_state,
-                                      &attempts, &buffer_word))
+                                      &attempts, &buffer_word)) {
+        free(buffer_word);
+        buffer_word = NULL;
         return STATE_RECEIVING_PACKET_ERROR;
+    }
 
     _clientPrintProgressMessage(attempts, buffer_word);
-
-    // Se libera el buffer.
-    free(buffer_word);
-    buffer_word = NULL;
-
-    char * buffer_letters = NULL;
-    size_t buffer_letters_size = 0;
-
 
     // Se itera mientras que el juego este en progreso.
     while (game_state == STATE_IN_PROGRESS){
@@ -132,14 +129,6 @@ ClientState clientExecute(Client * self, char * host, char * port){
 
         // Se itera por cada letra ingresada por stdin.
         for (int i = 0; i < read; i++){
-            // Se libera al principio si es que esta allocado ya
-            // que cuando termina el ciclo no debe ser liberado
-            // para poder imprimir el mensaje final.
-            if (buffer_word){
-                free(buffer_word);
-                buffer_word = NULL;
-            }
-
             // Se verifica que la letra sea valida, de lo contrario
             // se ignora y se imprime un mensaje por stdout.
             if (buffer_letters[i] < 'a' || buffer_letters[i] > 'z') {
@@ -169,10 +158,6 @@ ClientState clientExecute(Client * self, char * host, char * port){
             else
                 break;
         }
-
-        // Se libera la memoria de la lectura de stdin.
-        free(buffer_letters);
-        buffer_letters = NULL;
     }
     // Se imprime el mensaje final.
     _clientPrintFinalMessage(game_state, buffer_word);
@@ -180,6 +165,10 @@ ClientState clientExecute(Client * self, char * host, char * port){
     // Se libera la memoria del buffer de palabras.
     free(buffer_word);
     buffer_word = NULL;
+    // Se libera la memoriad del buffer de letras.
+    free(buffer_letters);
+    buffer_letters = NULL;
+
     return STATE_SUCCESS;
 }
 

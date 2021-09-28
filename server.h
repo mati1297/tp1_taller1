@@ -55,11 +55,11 @@ typedef enum{
  *      attempts debe apuntar a un array de cahrs con un numero de
  *      intentos valido.  */
 ServerState serverInit(Server * self, char * filename,
-                       char * port, char * attempts);
+                       char * attempts);
 
 /* Ejecuta el server.
  * Pre: self debe apuntar a una direccion de memoria valida.  */
-ServerState serverExecute(Server * self);
+ServerState serverExecute(Server * self, char * port);
 
 /* Desinicializa el server.
  * Pre: self debe apuntar a una direccion de memoria valida. */

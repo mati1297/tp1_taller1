@@ -73,24 +73,23 @@ uint8_t hangedAddWord(Hanged * self, char * word) {
             return 1;
     }
 
-    // Si habia una palabra se libera su memoria.
-    if (self->word){
-        free(self->word);
-        self->word = NULL;
-    }
-    if (self->known_word){
-        free(self->known_word);
-        self->known_word = NULL;
-    }
-
     // Se pide memoria para la nueva palabra. Se utiliza el heap
     // porque la palabra puede ser de hasta 65535 bytes, por
     // lo que no seria conveniente guardarlo en el stack.
-    if (!(self->word = malloc(word_size + 1)))
-        return 1;
-    if (!(self->known_word = malloc(word_size + 1))) {
+    if (!(self->word = realloc(self->word, word_size + 1))) {
+        // Si realloc falla deja la memoria anterior como si nada, por eso
+        // se libera la memoria.
         free(self->word);
         self->word = NULL;
+        free(self->known_word);
+        self->known_word = NULL;
+        return 1;
+    }
+    if (!(self->known_word = realloc(self->known_word, word_size + 1))) {
+        free(self->word);
+        self->word = NULL;
+        free(self->known_word);
+        self->known_word = NULL;
         return 1;
     }
 

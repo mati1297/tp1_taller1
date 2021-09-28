@@ -13,10 +13,10 @@ int main(int argc, char * argv[]){
         return 1;
     }
     Server server;
-    serverInit(&server, argv[3], argv[1], argv[2]);
+    serverInit(&server, argv[3], argv[2]);
 
     ServerState server_state;
-    if ((server_state = serverExecute(&server)) != STATE_SUCCESS) {
+    if ((server_state = serverExecute(&server, argv[1])) != STATE_SUCCESS) {
         serverPrintError(server_state);
         serverUnInit(&server);
         return EXIT_FAILURE;
