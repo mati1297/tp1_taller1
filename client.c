@@ -94,7 +94,7 @@ void clientInit(Client * self){
 
 ClientState clientExecute(Client * self, char * host, char * port){
     // Se utiliza el heap para leer la palabra recibida, ya que puede
-    // tener un tamaño de hasta 65535, por lo que no seria conveniente
+    // tener un tamaño de hasta 65535, por lo que no es conveniente
     // guardarlo en el stack.
     char * buffer_word = NULL;
     HangedState game_state = STATE_IN_PROGRESS;

@@ -15,7 +15,7 @@ static ssize_t _serverPackInformation(Server * self, char ** packet) {
     // Se calcula el tamanio que se necesita.
     size_t required_size = word_size + INFORMATION_PACK_HEADER_SIZE;
     // Se pide memoria. Se utiliza el heap porque la palabra puede
-    // ser de hasta 65535 bytes, por lo que no seria conveniente
+    // ser de hasta 65535 bytes, por lo que no es conveniente
     // guardarlo en el stack.
     if (!(*packet = realloc(*packet, required_size + 1)))
         return -1;

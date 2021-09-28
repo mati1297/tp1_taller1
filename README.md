@@ -15,10 +15,29 @@ Luego, el programa tiene sus dos TDAs principales: ```Server``` y ```Client```. 
 
 ```Client``` no tiene ninguna información sobre el estado del juego más que la que recibe de parte del server. Por lo que unicamente se encarga de recibir datos, desempaquetarlos y mostrarlos por pantalla. Luego recibe los datos de entrada y los envía al server. Toda la validación y lógica del juego es realizada en el server. Lo único que verifica es que el caracter sea valido, para poder mostrar un mensaje al usuario notificandolo. 
 
-Para la comuncición se utiliza el TDA ```Socket```. El cual permite y encapsula el uso de los sockets. Este posee funciones tanto útiles para el server como para el cliente: funciones de conexión (como ```socketConnect()```, ```socketBindAndListen()```, ```socketAccept()```) y funciones que permiten enviar y recibir datos (```socketSend()``` y ```socketReceive()```).
+Para la comuncición se utiliza el TDA ```Socket```. El cual permite y encapsula el uso de los sockets. Este posee funciones útiles tanto para el server como para el cliente: funciones de conexión (como ```socketConnect()```, ```socketBindAndListen()```, ```socketAccept()```) y funciones que permiten enviar y recibir datos (```socketSend()``` y ```socketReceive()```).
 
-Para la lectura de archivos, se utiliza el TDA ```FileReader()```. Este permite el manejo de archivos (o el flujo stdin). Su función principal utilizada en el programa es ```fileReaderReadLine()```, la cual permite leer una linea desde la entrada.
+Para la lectura de archivos, se utiliza el TDA ```FileReader()```. Que permite el manejo de archivos (o el flujo stdin). Su función principal utilizada en el programa es ```fileReaderReadLine()```, la cual permite leer una linea desde la entrada. Este TDA se utiliza tanto para la lectura de palabras desde el archivo de entrada como para la lectura de las letras que se ingresan en el cliente a traves de ```STDIN```.
 
-DIAGRAMA
+### Sobre el uso del heap
 
-ACLARACION SOBRE HEAP.
+Para las palabras del juego, se decidió utilizar el heap en vez del stack, esto se debe a que el protocolo de envío destina 2 bytes al tamaño de la palabra, por lo que puede tener un largo máximo de 65535. Por lo tanto se elige utilizar memoria dinámica para optimizar el programa, ya que lo más probable es que pocas veces se ingresen palabras cercanas al máximo tamaño valido. Esto se extiende tanto a la propia lectura en ```Server```, como al guardado de las palabras en el TDA ```Hanged``` y a la recepcion de la misma por parte de ```Client```.
+
+También se utiliza memoria dinámica al momento de leer las letras que se prueban en el juego por parte de ```Client```, ya que la cantidad de letras por línea máxima no está especificada. En este caso, el uso de memoria dinámica se limita solamente a la lectura ya que los caracteres son enviados de a uno al ```Server```.
+
+## Diagramas
+
+Se muestran a continuación algunos diagramas del funcionamiento del programa. El primero se puede observar un diagrama de TDAs reducido del programa. Se puede ver que ```Client``` y ```Server``` no se conocen entre si, y ambos poseen y utilizan instancias de ```Socket```. Además, se puede ver que ```Server``` posee una instancia del juego ```Hanged```.
+
+<p align=center>
+    <img src="images/class_diagram.png"alt="class_diagram"/>
+</p>
+
+En los dos siguientes se pueden ver diagramas de secuencia de la ejecución de ```Server```y de ```Client``` respectivamente, mostrando su interacción con los demás TDA.
+
+<p align=center>
+    <img src="images/server_sequence.png"alt="server_sequence"/>
+</p>
+<p align=center>
+    <img src="images/client_sequence.png"alt="client_sequence"/>
+</p>

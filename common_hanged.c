@@ -75,7 +75,7 @@ uint8_t hangedAddWord(Hanged * self, char * word) {
 
     // Se pide memoria para la nueva palabra. Se utiliza el heap
     // porque la palabra puede ser de hasta 65535 bytes, por
-    // lo que no seria conveniente guardarlo en el stack.
+    // lo que no es conveniente guardarlo en el stack.
     if (!(self->word = realloc(self->word, word_size + 1))) {
         // Si realloc falla deja la memoria anterior como si nada, por eso
         // se libera la memoria.
