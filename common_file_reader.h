@@ -42,5 +42,6 @@ bool fileReaderEOF(FileReader * self);
  *       size debe apuntar a una direccion de memoria valida.  */
 ssize_t fileReaderReadLine(FileReader * self, char ** output, size_t * size);
 
+// Hacer un wrapper de la libreria de C es un poco redundante
 
 #endif

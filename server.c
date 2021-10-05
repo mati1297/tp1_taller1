@@ -62,7 +62,8 @@ static uint8_t _serverSendPacket(Server * self, Socket * peer){
     packet = NULL;
     return 0;
 }
-
+// fijate que esta funcion practicamente solo chequea errores, hace que sea dificil de leer
+// los 3 casos del medio que devuelven 1 podrian estar juntos
 /*  Realiza la lectura desde el file reader, valida la lectura
  * y la palabra, y la carga en el juego.*/
 static uint8_t _serverReadAndAddWord(Server * self){
@@ -82,7 +83,7 @@ static uint8_t _serverReadAndAddWord(Server * self){
     if (read == 0){
         free(buffer);
         buffer = NULL;
-        return 1;
+        return 1; // este
     }
     // Si hay mas cantidad de caracteres que lo que tiene mayor tamanio
     // que lo que puede ser representado por 2 bytes, se sigue con la
@@ -90,14 +91,14 @@ static uint8_t _serverReadAndAddWord(Server * self){
     if (read > MAX_WORD_LENGTH) {
         free(buffer);
         buffer = NULL;
-        return 1;
+        return 1; // este
     }
     // Si se leyo una linea nula, se sigue con la siguiente.
     // (esto ocurre con una linea que solo tiene un '\n').
     if (buffer[0] == 0){
         free(buffer);
         buffer = NULL;
-        return 1;
+        return 1; // y este
     }
     // Se agrega la palabra al juego.
     if (hangedAddWord(&self->hanged, buffer)) {
@@ -125,6 +126,7 @@ ServerState serverInit(Server * self, char * filename,
     // Se inicializa el file reader con el nombre pasado
     // por parametro.
     if (fileReaderInitFromName(&self->file_reader, filename))
+        // aca lo devolves y quien lo chequea?
         return STATE_FILE_OPENING_ERROR;
 
     // Se convierte a numero y se valida la cantidad de intentos.

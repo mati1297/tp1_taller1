@@ -30,7 +30,7 @@ static uint8_t _socketGetAddressInfo(struct addrinfo ** result,
 void socketInit(Socket * self){
     self->fd = INVALID_FILE_DESCRIPTOR;
 }
-
+// Esto deberia ser static, lo usas solo en el accept, sino podrias leakear el fd
 void socketInitFromFd(Socket * self, int fd){
     self->fd = fd;
 }
@@ -97,6 +97,7 @@ uint8_t socketBindAndListen(Socket * self, char * port){
     setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
 
     // Se realiza el bind.
+    // Aca tambien tenes que loopear por addrinfo, como en el connect
     if (bind(self->fd, result->ai_addr, result->ai_addrlen)) {
         freeaddrinfo(result);
         close(self->fd);
