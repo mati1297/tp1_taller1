@@ -13,6 +13,7 @@ int main(int argc, char * argv[]){
         return 1;
     }
     Server server;
+    // Falta capturar estos erroes
     serverInit(&server, argv[3], argv[2]);
 
     ServerState server_state;

@@ -92,7 +92,7 @@ uint8_t hangedAddWord(Hanged * self, char * word) {
         self->known_word = NULL;
         return 1;
     }
-
+    /* no hace falta setear la informacion si le vas a hacer un strcpy despues */
     // Se setea a 0 la memoria pedida
     memset(self->word, 0, word_size + 1);
     memset(self->known_word, 0, word_size + 1);
